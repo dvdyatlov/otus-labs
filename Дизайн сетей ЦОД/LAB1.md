@@ -90,3 +90,82 @@ leaf30-E1				10.34.1.31/31
 
 leaf30-E2				10.34.2.31/31
 
+spine1#conf t
+spine1(config)#interface loopback 50010
+spine1(config-if)#ip address 10.32.1.0/32
+spine1(config-if)#interface E1
+spine1(config-if)#no switchport
+spine1(config-if)#mtu 9216
+spine1(config-if)#no shu
+spine1(config-if)#ip address 10.34.1.10/31
+spine1(config-if)#interface E2
+spine1(config-if)#no switchport
+spine1(config-if)#mtu 9216
+spine1(config-if)#no shu
+spine1(config-if)#ip address 10.34.1.20/31
+spine1(config-if)#interface E3
+spine1(config-if)#no switchport
+spine1(config-if)#mtu 9216
+spine1(config-if)#no shu
+spine1(config-if)#ip address 10.34.1.30/31
+
+spine2#conf t
+spine2(config)#interface loopback 50020
+spine2(config-if)#ip address 10.32.2.0/32
+spine2(config-if)#interface E1
+spine2(config-if)#no switchport
+spine2(config-if)#mtu 9216
+spine2(config-if)#no shu
+spine2(config-if)#ip address 10.34.2.10/31
+spine2(config-if)#interface E2
+spine2(config-if)#no switchport
+spine2(config-if)#mtu 9216
+spine2(config-if)#no shu
+spine2(config-if)#ip address 10.34.2.20/31
+spine2(config-if)#interface E3
+spine2(config-if)#no switchport
+spine2(config-if)#mtu 9216
+spine2(config-if)#no shu
+spine2(config-if)#ip address 10.34.2.30/31
+
+leaf10#conf t
+leaf10(config)#interface loopback 51100
+leaf10(config-if)#ip address 10.33.10.0/32
+leaf10(config-if)#interface E1
+leaf10(config-if)#no switchport
+leaf10(config-if)#mtu 9216
+leaf10(config-if)#no shu
+leaf10(config-if)#ip address 10.34.1.11/31
+leaf10(config-if)#interface E2
+leaf10(config-if)#no switchport
+leaf10(config-if)#mtu 9216
+leaf10(config-if)#no shu
+leaf10(config-if)#ip address 10.34.2.11/31
+
+leaf20#conf t
+leaf20(config)#interface loopback 51200
+leaf20(config-if)#ip address 10.33.20.0/32
+leaf20(config-if)#interface E1
+leaf20(config-if)#no switchport
+leaf20(config-if)#mtu 9216
+leaf20(config-if)#no shu
+leaf20(config-if)#ip address 10.34.1.21/31
+leaf20(config-if)#interface E2
+leaf20(config-if)#no switchport
+leaf20(config-if)#mtu 9216
+leaf20(config-if)#no shu
+leaf20(config-if)#ip address 10.34.2.21/31
+
+leaf30#conf t
+leaf30(config)#interface loopback 51300
+leaf30(config-if)#ip address 10.33.30.0/32
+leaf30(config-if)#interface E1
+leaf30(config-if)#no switchport
+leaf30(config-if)#mtu 9216
+leaf30(config-if)#no shu
+leaf30(config-if)#ip address 10.34.1.31/31
+leaf30(config-if)#interface E2
+leaf30(config-if)#no switchport
+leaf30(config-if)#mtu 9216
+leaf30(config-if)#no shu
+leaf30(config-if)#ip address 10.34.2.31/31
