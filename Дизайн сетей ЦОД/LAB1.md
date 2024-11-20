@@ -90,24 +90,45 @@ leaf30-E1				10.34.1.31/31
 
 leaf30-E2				10.34.2.31/31
 
+
+IV.		пишем команды конфигурации устройств
+
 spine1#conf t
+
 spine1(config)#interface loopback 50010
+
 spine1(config-if)#ip address 10.32.1.0/32
+
 spine1(config-if)#interface E1
+
 spine1(config-if)#no switchport
+
 spine1(config-if)#mtu 9216
+
 spine1(config-if)#no shu
+
 spine1(config-if)#ip address 10.34.1.10/31
+
 spine1(config-if)#interface E2
+
 spine1(config-if)#no switchport
+
 spine1(config-if)#mtu 9216
+
 spine1(config-if)#no shu
+
 spine1(config-if)#ip address 10.34.1.20/31
+
 spine1(config-if)#interface E3
+
 spine1(config-if)#no switchport
+
 spine1(config-if)#mtu 9216
+
 spine1(config-if)#no shu
+
 spine1(config-if)#ip address 10.34.1.30/31
+
 
 spine2#conf t
 spine2(config)#interface loopback 50020
