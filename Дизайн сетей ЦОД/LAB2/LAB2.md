@@ -281,6 +281,9 @@ PING 10.33.20.0 (10.33.20.0) from 10.33.10.0 : 72(100) bytes of data.
 
 rtt min/avg/max/mdev = 6.786/9.426/16.723/3.690 ms, pipe 2, ipg/ewma 13.847/12.981 ms
 
+
+
+
 leaf10#ping 10.33.30.0 source Loopback10
 
 PING 10.33.30.0 (10.33.30.0) from 10.33.10.0 : 72(100) bytes of data.
