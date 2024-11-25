@@ -20,6 +20,7 @@ interface Ethernet1
    ip ospf area 0.0.0.0
    
 !
+
 interface Ethernet2
 
    no switchport
@@ -31,6 +32,7 @@ interface Ethernet2
    ip ospf area 0.0.0.0
    
 !
+
 interface Ethernet3
    no switchport
    ip address 10.34.1.30/31
@@ -42,14 +44,23 @@ interface Loopback1
    ip ospf area 0.0.0.0
 !
 interface Management1
+
 !
+
 ip routing
+
 !
+
 router ospf 5
+
    passive-interface default
+   
    no passive-interface Ethernet1
+   
    no passive-interface Ethernet2
+   
    no passive-interface Ethernet3
->
+   
+
 
    
