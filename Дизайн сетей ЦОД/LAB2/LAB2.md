@@ -8,7 +8,7 @@
 </p>
 
 ## конфигурация spine01
-"
+<
 interface Ethernet1
    no switchport
    ip address 10.34.1.10/31
@@ -40,6 +40,6 @@ router ospf 5
    no passive-interface Ethernet1
    no passive-interface Ethernet2
    no passive-interface Ethernet3
-"
+>
 
    
