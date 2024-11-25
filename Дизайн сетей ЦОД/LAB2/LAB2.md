@@ -171,5 +171,47 @@ router ospf 5
    
    no passive-interface Ethernet2
 
+## конфигурация leaf20
+
+interface Ethernet1
+
+   no switchport
    
+   ip address 10.34.1.21/31
+   
+   ip ospf network point-to-point
+   
+   ip ospf area 0.0.0.0
+   
+!
+
+interface Ethernet2
+
+   no switchport
+   
+   ip address 10.34.2.21/31
+   
+   ip ospf network point-to-point
+   
+   ip ospf area 0.0.0.0
+   
+!
+
+interface Loopback20
+
+   ip address 10.33.20.0/32
+   
+   ip ospf area 0.0.0.0
+   
+ip routing
+
+!
+
+router ospf 5
+
+   passive-interface default
+   
+   no passive-interface Ethernet1
+   
+   no passive-interface Ethernet2
    
