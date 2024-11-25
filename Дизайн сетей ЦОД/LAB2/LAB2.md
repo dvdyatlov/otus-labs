@@ -8,8 +8,8 @@
 </p>
 
 ## конфигурация spine01
-<
-interface Ethernet1
+
+interface Ethernet1\n
    no switchport
    ip address 10.34.1.10/31
    ip ospf network point-to-point
