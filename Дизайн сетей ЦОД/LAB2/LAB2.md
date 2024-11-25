@@ -42,17 +42,15 @@ interface Ethernet3
    ip ospf network point-to-point
    
    ip ospf area 0.0.0.0
+   
 !
+
 interface Loopback1
 
    ip address 10.32.1.0/32
    
    ip ospf area 0.0.0.0
    
-!
-
-interface Management1
-
 !
 
 ip routing
