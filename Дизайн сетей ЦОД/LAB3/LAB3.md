@@ -43,16 +43,118 @@ router isis POD5
 ```
    
 ## конфигурация spine02
-
+```
+interface Ethernet1
+   no switchport
+   ip address 10.34.2.10/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.2.20/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet3
+   no switchport
+   ip address 10.34.2.30/31
+   isis enable POD5
+   isis bfd
+!
+interface Loopback2
+   ip address 10.32.2.0/32
+   isis enable POD5
+!
+ip routing
+!
+router isis POD5
+   net 49.0011.0001.0001.0002.00
+   is-type level-1
+   !
+   address-family ipv4 unicast
+```
 
 ## конфигурация leaf10
-
+```
+interface Ethernet1
+   no switchport
+   ip address 10.34.1.11/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.2.11/31
+   isis enable POD5
+   isis bfd
+!
+interface Loopback10
+   ip address 10.33.10.0/32
+   isis enable POD5
+!
+ip routing
+!
+router isis POD5
+   net 49.0011.0001.0001.0010.00
+   is-type level-1
+   !
+   address-family ipv4 unicast
+```
 
 ## конфигурация leaf20
+```
+interface Ethernet1
+   no switchport
+   ip address 10.34.1.21/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.2.21/31
+   isis enable POD5
+   isis bfd
+!
+interface Loopback20
+   ip address 10.33.20.0/32
+   isis enable POD5
+!
+ip routing
+!
+router isis POD5
+   net 49.0011.0001.0001.0020.00
+   is-type level-1
+   !
+   address-family ipv4 unicast
+```
 
-   
 ## конфигурация leaf30
-
+```
+interface Ethernet1
+   no switchport
+   ip address 10.34.1.31/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.2.31/31
+   isis enable POD5
+   isis bfd
+!
+interface Loopback30
+   ip address 10.33.30.0/32
+   isis enable POD5
+!
+ip routing
+!
+router isis POD5
+   net 49.0011.0001.0001.0030.00
+   is-type level-1
+   !
+   address-family ipv4 unicast
+```
    
 ## проверяем ip-связность между loopback-ами leaf-ов:
 
