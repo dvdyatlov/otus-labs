@@ -10,7 +10,37 @@
 </p>
 
 ## конфигурация spine01
-
+```
+interface Ethernet1
+   no switchport
+   ip address 10.34.1.10/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.1.20/31
+   isis enable POD5
+   isis bfd
+!
+interface Ethernet3
+   no switchport
+   ip address 10.34.1.30/31
+   isis enable POD5
+   isis bfd
+!
+interface Loopback1
+   ip address 10.32.1.0/32
+   isis enable POD5
+!
+ip routing
+!
+router isis POD5
+   net 49.0011.0001.0001.0001.00
+   is-type level-1
+   !
+   address-family ipv4 unicast
+```
    
 ## конфигурация spine02
 
