@@ -16,32 +16,28 @@
 interface Ethernet1
    no switchport
    ip address 10.34.1.10/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet2
    no switchport
    ip address 10.34.1.20/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet3
    no switchport
    ip address 10.34.1.30/31
-   isis enable POD5
-   isis bfd
 !
 interface Loopback1
    ip address 10.32.1.0/32
-   isis enable POD5
 !
 ip routing
 !
-router isis POD5
-   net 49.0011.0001.0001.0001.00
-   is-type level-1
-   !
-   address-family ipv4 unicast
+peer-filter LEAVES-ASNs
+   10 match as-range 65010-65030 result accept
+!
+router bgp 65000
+   router-id 10.32.1.0
+   bgp listen range 10.34.0.0/16 peer-group LEAVES peer-filter LEAVES-ASNs
+   neighbor LEAVES peer group
+   neighbor LEAVES bfd
 ```
    
 ## конфигурация spine02
@@ -49,32 +45,28 @@ router isis POD5
 interface Ethernet1
    no switchport
    ip address 10.34.2.10/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet2
    no switchport
    ip address 10.34.2.20/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet3
    no switchport
    ip address 10.34.2.30/31
-   isis enable POD5
-   isis bfd
 !
 interface Loopback2
    ip address 10.32.2.0/32
-   isis enable POD5
 !
 ip routing
 !
-router isis POD5
-   net 49.0011.0001.0001.0002.00
-   is-type level-1
-   !
-   address-family ipv4 unicast
+peer-filter LEAVES-ASNs
+   10 match as-range 65010-65030 result accept
+!
+router bgp 65000
+   router-id 10.32.2.0
+   bgp listen range 10.34.0.0/16 peer-group LEAVES peer-filter LEAVES-ASNs
+   neighbor LEAVES peer group
+   neighbor LEAVES bfd
 ```
 
 ## конфигурация leaf10
@@ -82,26 +74,25 @@ router isis POD5
 interface Ethernet1
    no switchport
    ip address 10.34.1.11/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet2
    no switchport
    ip address 10.34.2.11/31
-   isis enable POD5
-   isis bfd
 !
 interface Loopback10
    ip address 10.33.10.0/32
-   isis enable POD5
 !
 ip routing
 !
-router isis POD5
-   net 49.0011.0001.0001.0010.00
-   is-type level-1
-   !
-   address-family ipv4 unicast
+router bgp 65010
+   router-id 10.33.10.0
+   maximum-paths 2
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65000
+   neighbor SPINES bfd
+   neighbor 10.34.1.10 peer group SPINES
+   neighbor 10.34.2.10 peer group SPINES
+   network 10.33.10.0/32
 ```
 
 ## конфигурация leaf20
@@ -109,26 +100,25 @@ router isis POD5
 interface Ethernet1
    no switchport
    ip address 10.34.1.21/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet2
    no switchport
    ip address 10.34.2.21/31
-   isis enable POD5
-   isis bfd
 !
 interface Loopback20
    ip address 10.33.20.0/32
-   isis enable POD5
 !
 ip routing
 !
-router isis POD5
-   net 49.0011.0001.0001.0020.00
-   is-type level-1
-   !
-   address-family ipv4 unicast
+router bgp 65020
+   router-id 10.33.20.0
+   maximum-paths 2
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65000
+   neighbor SPINES bfd
+   neighbor 10.34.1.20 peer group SPINES
+   neighbor 10.34.2.20 peer group SPINES
+   network 10.33.20.0/32
 ```
 
 ## конфигурация leaf30
@@ -136,70 +126,86 @@ router isis POD5
 interface Ethernet1
    no switchport
    ip address 10.34.1.31/31
-   isis enable POD5
-   isis bfd
 !
 interface Ethernet2
    no switchport
    ip address 10.34.2.31/31
-   isis enable POD5
-   isis bfd
 !
 interface Loopback30
    ip address 10.33.30.0/32
-   isis enable POD5
 !
 ip routing
 !
-router isis POD5
-   net 49.0011.0001.0001.0030.00
-   is-type level-1
-   !
-   address-family ipv4 unicast
+router bgp 65030
+   router-id 10.33.30.0
+   maximum-paths 2
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65000
+   neighbor SPINES bfd
+   neighbor 10.34.1.30 peer group SPINES
+   neighbor 10.34.2.30 peer group SPINES
+   network 10.33.30.0/32
 ```
 ## проверяем разное
-### проверяем статусы isis соседства
+### проверяем статусы bgp соседства
 ```
-spine01#show isis neighbors 
- 
-Instance  VRF      System Id        Type Interface          SNPA              State Hold time   Circuit Id          
-POD5      default  leaf10           L1   Ethernet1          50:0:0:d7:ee:b    UP    7           leaf10.0b           
-POD5      default  leaf20           L1   Ethernet2          50:0:0:d5:5d:c0   UP    8           leaf20.0b           
-POD5      default  leaf30           L1   Ethernet3          50:0:0:f6:ad:37   UP    7           leaf30.0b
+spine01#sh ip bgp su
+Router identifier 10.32.1.0, local AS number 65000
+Neighbor Status Codes: m - Under maintenance
+  Neighbor         V  AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
+  10.34.1.11       4  65010             49        50    0    0 00:44:36 Estab   1      1
+  10.34.1.21       4  65020             49        50    0    0 00:44:36 Estab   1      1
+  10.34.1.31       4  65030             34        35    0    0 00:29:06 Estab   1      1
 ```
 
 ### проверяем статусы bfd соседства
 ```
-spine01#show bfd peers 
+spine02#show bfd peers
 VRF name: default
 -----------------
 DstAddr        MyDisc    YourDisc  Interface/Transport    Type          LastUp 
 ---------- ----------- ----------- -------------------- ------- ---------------
-10.34.1.11 3096499086  1531209707        Ethernet1(11)  normal  11/27/24 21:22 
-10.34.1.21  730431310   417995450        Ethernet2(12)  normal  11/27/24 21:34 
-10.34.1.31 2579755259   578037804        Ethernet3(13)  normal  11/27/24 21:38 
+10.34.2.11 3909103371  2165189215        Ethernet1(11)  normal  12/02/24 00:44 
+10.34.2.21 3643785541   360989875        Ethernet2(12)  normal  12/02/24 00:44 
+10.34.2.31 3003998637  3562754630        Ethernet3(13)  normal  12/02/24 00:55 
 
    LastDown            LastDiag    State
 -------------- ------------------- -----
          NA       No Diagnostic       Up
          NA       No Diagnostic       Up
          NA       No Diagnostic       Up
-```
-### смотрим на таблицы маршрутов
-```
-leaf10#show ip route isis 
- I L1     10.32.1.0/32 [115/20] via 10.34.1.10, Ethernet1
- I L1     10.32.2.0/32 [115/20] via 10.34.2.10, Ethernet2
- I L1     10.33.20.0/32 [115/30] via 10.34.1.10, Ethernet1
-                                 via 10.34.2.10, Ethernet2
- I L1     10.33.30.0/32 [115/30] via 10.34.1.10, Ethernet1
-                                 via 10.34.2.10, Ethernet2
- I L1     10.34.1.20/31 [115/20] via 10.34.1.10, Ethernet1
- I L1     10.34.1.30/31 [115/20] via 10.34.1.10, Ethernet1
- I L1     10.34.2.20/31 [115/20] via 10.34.2.10, Ethernet2
- I L1     10.34.2.30/31 [115/20] via 10.34.2.10, Ethernet2
-```
 
+```
+### смотрим на таблицы маршрутов bgp, видим что маршрутов до других leaf-ов по 2 штуки
+```
+leaf10#sh ip bgp
+BGP routing table information for VRF default
+Router identifier 10.33.10.0, local AS number 65010
+Route status codes: * - valid, > - active, # - not installed, E - ECMP head, e - ECMP
+                    S - Stale, c - Contributing to ECMP, b - backup, L - labeled-unicast
+Origin codes: i - IGP, e - EGP, ? - incomplete
+AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+
+         Network                Next Hop            Metric  LocPref Weight  Path
+ * >     10.33.10.0/32          -                     0       0       -       i
+ * >Ec   10.33.20.0/32          10.34.1.10            0       100     0       65000 65020 i
+ *  ec   10.33.20.0/32          10.34.2.10            0       100     0       65000 65020 i
+ * >Ec   10.33.30.0/32          10.34.1.10            0       100     0       65000 65030 i
+ *  ec   10.33.30.0/32          10.34.2.10            0       100     0       65000 65030 i
+```
+### смотрим на GRT, видим по 2 равноценных маршрута до других leaf-ов
+```
+leaf20#sh ip ro
+       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+
+ B E      10.33.10.0/32 [200/0] via 10.34.1.20, Ethernet1
+                                via 10.34.2.20, Ethernet2
+ C        10.33.20.0/32 is directly connected, Loopback20
+ B E      10.33.30.0/32 [200/0] via 10.34.1.20, Ethernet1
+                                via 10.34.2.20, Ethernet2
+ C        10.34.1.20/31 is directly connected, Ethernet1
+ C        10.34.2.20/31 is directly connected, Ethernet2
+```
 ### проверяем ip-связность между loopback-ами leaf-ов:
 ```
 leaf10#ping 10.33.20.0 source Loopback10
