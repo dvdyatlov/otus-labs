@@ -8,7 +8,7 @@
 
 
 <p align="center">
- <img src="LAB1.jpg" alt="qr"/>
+ <img src="lab4.jpg" alt="qr"/>
 </p>
 
 ## конфигурация spine01
