@@ -220,3 +220,4 @@ PING 10.33.20.0 (10.33.20.0) from 10.33.10.0 : 72(100) bytes of data.
 5 packets transmitted, 5 received, 0% packet loss, time 47ms
 rtt min/avg/max/mdev = 6.694/8.442/12.553/2.193 ms, ipg/ewma 11.813/10.459 ms
 ```
+Главная трудность была конечно на незнакомой аристе найти аналогичные нексусу команды про всякие peer-группы, peer-фильтры 
