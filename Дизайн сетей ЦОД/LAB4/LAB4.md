@@ -176,6 +176,19 @@ DstAddr        MyDisc    YourDisc  Interface/Transport    Type          LastUp
          NA       No Diagnostic       Up
 
 ```
+### убеждаемся что bgp использует bfd
+```
+spine01#sh ip bgp neighbors bfd 
+BGP BFD Neighbor Table
+Flags: U - BFD is enabled for BGP neighbor and BFD session state is UP
+       I - BFD is enabled for BGP neighbor and BFD session state is INIT
+       D - BFD is enabled for BGP neighbor and BFD session state is DOWN
+       N - BFD is not enabled for BGP neighbor
+Neighbor           Interface          Up/Down    State       Flags
+10.34.1.11         Ethernet1          00:56:43   Established U    
+10.34.1.21         Ethernet2          00:56:43   Established U    
+10.34.1.31         Ethernet3          00:41:13   Established U    
+```
 ### смотрим на таблицы маршрутов bgp, видим что маршрутов до других leaf-ов по 2 штуки
 ```
 leaf10#sh ip bgp
