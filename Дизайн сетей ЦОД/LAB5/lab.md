@@ -274,7 +274,28 @@ router bgp 65000
     inherit peer SPINES
 ```
 ## проверяем разное
-### проверяем статусы bgp соседства
+### проверяем что ospf underlay поднялся и есть связность между loopback-ами
+```
+leaf-10# sh ip ospf neighbors 
+ OSPF Process ID 65000 VRF default
+ Total number of neighbors: 2
+ Neighbor ID     Pri State            Up Time  Address         Interface
+ 10.32.1.0         0 FULL/ -          01:42:50 10.34.1.10      Eth1/1 
+ 10.32.2.0         0 FULL/ -          01:42:51 10.34.2.10      Eth1/2
+
+leaf-10# ping 10.33.30.0 source 10.33.10.0
+PING 10.33.30.0 (10.33.30.0) from 10.33.10.0: 56 data bytes
+64 bytes from 10.33.30.0: icmp_seq=0 ttl=253 time=4.388 ms
+64 bytes from 10.33.30.0: icmp_seq=1 ttl=253 time=3.89 ms
+64 bytes from 10.33.30.0: icmp_seq=2 ttl=253 time=3.616 ms
+64 bytes from 10.33.30.0: icmp_seq=3 ttl=253 time=3.669 ms
+64 bytes from 10.33.30.0: icmp_seq=4 ttl=253 time=3.584 ms
+
+--- 10.33.30.0 ping statistics ---
+5 packets transmitted, 5 packets received, 0.00% packet loss
+round-trip min/avg/max = 3.584/3.829/4.388 ms
+
+```
 ```
 spine01#sh ip bgp su
 Router identifier 10.32.1.0, local AS number 65000
