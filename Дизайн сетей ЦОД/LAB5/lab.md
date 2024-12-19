@@ -10,7 +10,7 @@
  <img src="LAB5-arista-nxos-l2vpn.jpg" alt="qr"/>
 </p>
 
-## конфигурация spine01
+## конфигурация arista-spine-1
 ```
 interface Ethernet1
    no switchport
@@ -55,7 +55,7 @@ router ospf 65000
 end
 ```
    
-## конфигурация spine02
+## конфигурация arista-spine-2
 ```
 interface Ethernet1
    no switchport
@@ -98,9 +98,9 @@ router ospf 65000
    max-lsa 12000
 ```
 
-## конфигурация leaf10
+## конфигурация nexus-leaf-1
 ```
-hostname leaf-10
+hostname nexus-leaf-1
 nv overlay evpn
 feature ospf
 feature bgp
@@ -158,9 +158,9 @@ router bgp 65000
     inherit peer SPINES
 ```
 
-## конфигурация leaf20
+## конфигурация nexus-leaf-2
 ```
-hostname leaf-20
+hostname nexus-leaf-2
 nv overlay evpn
 feature ospf
 feature bgp
@@ -212,9 +212,9 @@ router bgp 65000
     inherit peer SPINES
 ```
 
-## конфигурация leaf30
+## конфигурация nexus-leaf-3
 ```
-hostname leaf-30
+hostname nexus-leaf-3
 nv overlay evpn
 feature ospf
 feature bgp
@@ -276,14 +276,14 @@ router bgp 65000
 ## проверяем разное
 ### проверяем что ospf underlay поднялся и есть связность между loopback-ами
 ```
-leaf-10# sh ip ospf neighbors 
+nexus-leaf-1# sh ip ospf neighbors 
  OSPF Process ID 65000 VRF default
  Total number of neighbors: 2
  Neighbor ID     Pri State            Up Time  Address         Interface
  10.32.1.0         0 FULL/ -          01:42:50 10.34.1.10      Eth1/1 
  10.32.2.0         0 FULL/ -          01:42:51 10.34.2.10      Eth1/2
 
-leaf-10# ping 10.33.30.0 source 10.33.10.0
+nexus-leaf-1# ping 10.33.30.0 source 10.33.10.0
 PING 10.33.30.0 (10.33.30.0) from 10.33.10.0: 56 data bytes
 64 bytes from 10.33.30.0: icmp_seq=0 ttl=253 time=4.388 ms
 64 bytes from 10.33.30.0: icmp_seq=1 ttl=253 time=3.89 ms
@@ -300,7 +300,7 @@ round-trip min/avg/max = 3.584/3.829/4.388 ms
 
 ### смотрим на состояние nve peers
 ```
-leaf-10# sh nve peers 
+nexus-leaf-1# sh nve peers 
 Interface Peer-IP                                 State LearnType Uptime   Route
 r-Mac       
 --------- --------------------------------------  ----- --------- -------- -----
@@ -311,7 +311,7 @@ nve1      10.33.30.0                              Up    CP        00:25:54 n/a
 ```
 ### смотрим разное
 ```
-leaf-10# sh l2route evpn mac all 
+nexus-leaf-1# sh l2route evpn mac all 
 
 Topology    Mac Address    Prod   Flags         Seq No     Next-Hops                              
 ----------- -------------- ------ ------------- ---------- ---------------------------------------
@@ -328,7 +328,7 @@ C   10     0050.0000.0800   dynamic  0         F      F    nve1(10.33.20.0)
 C   20     0050.0000.0900   dynamic  0         F      F    nve1(10.33.30.0)
 G    -     5002.0000.1b08   static   -         F      F    sup-eth1(R)
 
-leaf-10# sh bgp all 
+nexus-leaf-1# sh bgp all 
 
    Network            Next Hop            Metric     LocPrf     Weight Path
 Route Distinguisher: 10.33.10.0:32777    (L2VNI 10)
