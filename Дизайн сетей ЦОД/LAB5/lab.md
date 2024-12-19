@@ -3,7 +3,7 @@
 ## План работы
 - конфигурим девайсы в соответствии с картинкой 
 - проверяем доступность между loopback-ами - ospf underlay
-- конфигурим все девайсы в одну bgp as (ibgp), спайны как роут-рефлекторы, на всех  девайсах делвем bgp address-family evpn, все отдают bgp extended community
+- конфигурим все девайсы в одну bgp as (ibgp), спайны как роут-рефлекторы, на всех  девайсах делаем bgp address-family evpn, все отдают bgp extended community
 
 
 <p align="center">
@@ -135,6 +135,10 @@ interface Ethernet1/2
   ip ospf network point-to-point
   ip router ospf 65000 area 0.0.0.0
   no shutdown
+interface Ethernet1/3
+  switchport access vlan 10
+interface Ethernet1/4
+  switchport access vlan 20
 interface loopback0
   ip address 10.33.10.0/32
   ip router ospf 65000 area 0.0.0.0
@@ -156,54 +160,118 @@ router bgp 65000
 
 ## конфигурация leaf20
 ```
-interface Ethernet1
-   no switchport
-   ip address 10.34.1.21/31
-!
-interface Ethernet2
-   no switchport
-   ip address 10.34.2.21/31
-!
-interface Loopback20
-   ip address 10.33.20.0/32
-!
-ip routing
-!
-router bgp 65020
-   router-id 10.33.20.0
-   maximum-paths 2
-   neighbor SPINES peer group
-   neighbor SPINES remote-as 65000
-   neighbor SPINES bfd
-   neighbor 10.34.1.20 peer group SPINES
-   neighbor 10.34.2.20 peer group SPINES
-   network 10.33.20.0/32
+hostname leaf-20
+nv overlay evpn
+feature ospf
+feature bgp
+feature fabric forwarding
+feature vn-segment-vlan-based
+feature bfd
+feature nv overlay
+vlan 1,10
+vlan 10
+  vn-segment 10
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 10
+    ingress-replication protocol bgp
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.34.1.21/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/2
+  no switchport
+  ip address 10.34.2.21/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+interface Ethernet1/3
+  switchport access vlan 10
+interface loopback0
+  ip address 10.33.20.0/32
+  ip router ospf 65000 area 0.0.0.0
+
+router ospf 65000
+router bgp 65000
+  address-family l2vpn evpn
+  template peer SPINES
+    remote-as 65000
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.32.1.0
+    inherit peer SPINES
+  neighbor 10.32.2.0
+    inherit peer SPINES
 ```
 
 ## конфигурация leaf30
 ```
-interface Ethernet1
-   no switchport
-   ip address 10.34.1.31/31
-!
-interface Ethernet2
-   no switchport
-   ip address 10.34.2.31/31
-!
-interface Loopback30
-   ip address 10.33.30.0/32
-!
-ip routing
-!
-router bgp 65030
-   router-id 10.33.30.0
-   maximum-paths 2
-   neighbor SPINES peer group
-   neighbor SPINES remote-as 65000
-   neighbor SPINES bfd
-   neighbor 10.34.1.30 peer group SPINES
-   neighbor 10.34.2.30 peer group SPINES
-   network 10.33.30.0/32
+hostname leaf-30
+nv overlay evpn
+feature ospf
+feature bgp
+feature fabric forwarding
+feature vn-segment-vlan-based
+feature bfd
+feature nv overlay
+
+vlan 1,20
+vlan 20
+  vn-segment 20
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 20
+    ingress-replication protocol bgp
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 20
+    ingress-replication protocol bgp
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.34.1.31/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/2
+  no switchport
+  ip address 10.34.2.31/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/3
+  switchport access vlan 20
+interface loopback0
+  ip address 10.33.30.0/32
+  ip router ospf 65000 area 0.0.0.0
+
+router ospf 65000
+router bgp 65000
+  address-family l2vpn evpn
+  template peer SPINES
+    remote-as 65000
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.32.1.0
+    inherit peer SPINES
+  neighbor 10.32.2.0
+    inherit peer SPINES
 ```
 ## проверяем разное
 ### проверяем статусы bgp соседства
