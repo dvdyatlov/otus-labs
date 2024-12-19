@@ -296,16 +296,6 @@ PING 10.33.30.0 (10.33.30.0) from 10.33.10.0: 56 data bytes
 round-trip min/avg/max = 3.584/3.829/4.388 ms
 
 ```
-```
-spine01#sh ip bgp su
-Router identifier 10.32.1.0, local AS number 65000
-Neighbor Status Codes: m - Under maintenance
-  Neighbor         V  AS           MsgRcvd   MsgSent  InQ OutQ  Up/Down State   PfxRcd PfxAcc
-  10.34.1.11       4  65010             49        50    0    0 00:44:36 Estab   1      1
-  10.34.1.21       4  65020             49        50    0    0 00:44:36 Estab   1      1
-  10.34.1.31       4  65030             34        35    0    0 00:29:06 Estab   1      1
-```
-
 ### проверяем статусы bfd соседства
 ```
 spine02#show bfd peers
