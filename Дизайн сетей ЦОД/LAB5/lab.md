@@ -1,7 +1,7 @@
 #         l2vpn evpn и ospf в качестве underlay
 
 ## План работы
-- конфигурим девайсы в соответствии с картинкой 
+- конфигурим девайсы в соответствии с картинкой (спайны аристы, лифы нексусы)
 - проверяем доступность между loopback-ами - ospf underlay
 - конфигурим все девайсы в одну bgp as (ibgp), спайны как роут-рефлекторы, на всех  девайсах делаем bgp address-family evpn, все отдают bgp extended community
 
@@ -296,80 +296,89 @@ PING 10.33.30.0 (10.33.30.0) from 10.33.10.0: 56 data bytes
 round-trip min/avg/max = 3.584/3.829/4.388 ms
 
 ```
-### проверяем статусы bfd соседства
-```
-spine02#show bfd peers
-VRF name: default
------------------
-DstAddr        MyDisc    YourDisc  Interface/Transport    Type          LastUp 
----------- ----------- ----------- -------------------- ------- ---------------
-10.34.2.11 3909103371  2165189215        Ethernet1(11)  normal  12/02/24 00:44 
-10.34.2.21 3643785541   360989875        Ethernet2(12)  normal  12/02/24 00:44 
-10.34.2.31 3003998637  3562754630        Ethernet3(13)  normal  12/02/24 00:55 
+### bfd на этих нексусах не живет, смотреть бесполезно
 
-   LastDown            LastDiag    State
--------------- ------------------- -----
-         NA       No Diagnostic       Up
-         NA       No Diagnostic       Up
-         NA       No Diagnostic       Up
+### смотрим на состояние nve peers
+```
+leaf-10# sh nve peers 
+Interface Peer-IP                                 State LearnType Uptime   Route
+r-Mac       
+--------- --------------------------------------  ----- --------- -------- -----
+------------
+nve1      10.33.20.0                              Up    CP        00:27:17 n/a  
+            
+nve1      10.33.30.0                              Up    CP        00:25:54 n/a
+```
+### смотрим разное
+```
+leaf-10# sh l2route evpn mac all 
 
-```
-### убеждаемся что bgp использует bfd
-```
-spine01#sh ip bgp neighbors bfd 
-BGP BFD Neighbor Table
-Flags: U - BFD is enabled for BGP neighbor and BFD session state is UP
-       I - BFD is enabled for BGP neighbor and BFD session state is INIT
-       D - BFD is enabled for BGP neighbor and BFD session state is DOWN
-       N - BFD is not enabled for BGP neighbor
-Neighbor           Interface          Up/Down    State       Flags
-10.34.1.11         Ethernet1          00:56:43   Established U    
-10.34.1.21         Ethernet2          00:56:43   Established U    
-10.34.1.31         Ethernet3          00:41:13   Established U    
-```
-### смотрим на таблицы маршрутов bgp, видим что маршрутов до других leaf-ов по 2 штуки
-```
-leaf10#sh ip bgp
-BGP routing table information for VRF default
-Router identifier 10.33.10.0, local AS number 65010
-Route status codes: * - valid, > - active, # - not installed, E - ECMP head, e - ECMP
-                    S - Stale, c - Contributing to ECMP, b - backup, L - labeled-unicast
-Origin codes: i - IGP, e - EGP, ? - incomplete
-AS Path Attributes: Or-ID - Originator ID, C-LST - Cluster List, LL Nexthop - Link Local Nexthop
+Topology    Mac Address    Prod   Flags         Seq No     Next-Hops                              
+----------- -------------- ------ ------------- ---------- ---------------------------------------
+10          0050.0000.0600 Local  L,            0          Eth1/3                                 
+10          0050.0000.0800 BGP    Rcv           0          10.33.20.0 (Label: 10)                 
+20          0050.0000.0700 Local  L,            0          Eth1/4                                 
+20          0050.0000.0900 BGP    Rcv           0          10.33.30.0 (Label: 20)
 
-         Network                Next Hop            Metric  LocPref Weight  Path
- * >     10.33.10.0/32          -                     0       0       -       i
- * >Ec   10.33.20.0/32          10.34.1.10            0       100     0       65000 65020 i
- *  ec   10.33.20.0/32          10.34.2.10            0       100     0       65000 65020 i
- * >Ec   10.33.30.0/32          10.34.1.10            0       100     0       65000 65030 i
- *  ec   10.33.30.0/32          10.34.2.10            0       100     0       65000 65030 i
-```
-### смотрим на GRT, видим по 2 равноценных маршрута до других leaf-ов
-```
-leaf20#sh ip ro
-       B I - iBGP, B E - eBGP, R - RIP, I L1 - IS-IS level 1,
+leaf-10# sh mac address-table 
+---------+-----------------+--------+---------+------+----+------------------
+*   10     0050.0000.0600   dynamic  0         F      F    Eth1/3
+C   10     0050.0000.0800   dynamic  0         F      F    nve1(10.33.20.0)
+*   20     0050.0000.0700   dynamic  0         F      F    Eth1/4
+C   20     0050.0000.0900   dynamic  0         F      F    nve1(10.33.30.0)
+G    -     5002.0000.1b08   static   -         F      F    sup-eth1(R)
 
- B E      10.33.10.0/32 [200/0] via 10.34.1.20, Ethernet1
-                                via 10.34.2.20, Ethernet2
- C        10.33.20.0/32 is directly connected, Loopback20
- B E      10.33.30.0/32 [200/0] via 10.34.1.20, Ethernet1
-                                via 10.34.2.20, Ethernet2
- C        10.34.1.20/31 is directly connected, Ethernet1
- C        10.34.2.20/31 is directly connected, Ethernet2
-```
-### проверяем ip-связность между loopback-ами leaf-ов:
-```
-leaf10#ping 10.33.20.0 source Loopback10
-PING 10.33.20.0 (10.33.20.0) from 10.33.10.0 : 72(100) bytes of data.
-80 bytes from 10.33.20.0: icmp_seq=1 ttl=63 time=12.5 ms
-80 bytes from 10.33.20.0: icmp_seq=2 ttl=63 time=7.34 ms
-80 bytes from 10.33.20.0: icmp_seq=3 ttl=63 time=6.80 ms
-80 bytes from 10.33.20.0: icmp_seq=4 ttl=63 time=6.69 ms
-80 bytes from 10.33.20.0: icmp_seq=5 ttl=63 time=8.82 ms
+leaf-10# sh bgp all 
 
---- 10.33.20.0 ping statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 47ms
-rtt min/avg/max/mdev = 6.694/8.442/12.553/2.193 ms, ipg/ewma 11.813/10.459 ms
+   Network            Next Hop            Metric     LocPrf     Weight Path
+Route Distinguisher: 10.33.10.0:32777    (L2VNI 10)
+*>l[2]:[0]:[0]:[48]:[0050.0000.0600]:[0]:[0.0.0.0]/216
+                      10.33.10.0                        100      32768 i
+*>i[2]:[0]:[0]:[48]:[0050.0000.0800]:[0]:[0.0.0.0]/216
+                      10.33.20.0                        100          0 i
+*>l[3]:[0]:[32]:[10.33.10.0]/88
+                      10.33.10.0                        100      32768 i
+*>i[3]:[0]:[32]:[10.33.20.0]/88
+                      10.33.20.0                        100          0 i
+
+Route Distinguisher: 10.33.10.0:32787    (L2VNI 20)
+*>l[2]:[0]:[0]:[48]:[0050.0000.0700]:[0]:[0.0.0.0]/216
+                      10.33.10.0                        100      32768 i
+*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[0]:[0.0.0.0]/216
+                      10.33.30.0                        100          0 i
+*>l[3]:[0]:[32]:[10.33.10.0]/88
+                      10.33.10.0                        100      32768 i
+*>i[3]:[0]:[32]:[10.33.30.0]/88
+                      10.33.30.0                        100          0 i
+
+Route Distinguisher: 10.33.20.0:32777
+* i[2]:[0]:[0]:[48]:[0050.0000.0800]:[0]:[0.0.0.0]/216
+                      10.33.20.0                        100          0 i
+*>i                   10.33.20.0                        100          0 i
+*>i[3]:[0]:[32]:[10.33.20.0]/88
+                      10.33.20.0                        100          0 i
+* i                   10.33.20.0                        100          0 i
+
+Route Distinguisher: 10.33.30.0:32787
+*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[0]:[0.0.0.0]/216
+                      10.33.30.0                        100          0 i
+* i                   10.33.30.0                        100          0 i
+* i[3]:[0]:[32]:[10.33.30.0]/88
+                      10.33.30.0                        100          0 i
+*>i                   10.33.30.0                        100          0 i
+          
 ```
-Главная трудность была конечно на незнакомой аристе найти аналогичные нексусу команды про всякие peer-группы, peer-фильтры 
+### проверяем ip-связность между машинами:
+```
+gns3@PC-1-10:~$ ping 10.35.10.21
+PING 10.35.10.21 (10.35.10.21): 56 data bytes
+64 bytes from 10.35.10.21: seq=0 ttl=64 time=18.471 ms
+64 bytes from 10.35.10.21: seq=1 ttl=64 time=5.023 ms
+
+gns3@PC-1-20:~$ ping 10.35.20.31
+PING 10.35.20.31 (10.35.20.31): 56 data bytes
+64 bytes from 10.35.20.31: seq=0 ttl=64 time=7.893 ms
+64 bytes from 10.35.20.31: seq=1 ttl=64 time=15.400 ms
+```
+Очень хочется еще повторить в вариантах underlay ibgp и ebgp, и лифами еше аристы сделать, но это позже, со временем тяжело
 
