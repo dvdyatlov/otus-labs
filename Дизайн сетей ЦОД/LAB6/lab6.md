@@ -110,6 +110,9 @@ feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
 
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
 fabric forwarding anycast-gateway-mac 1234.5678.0100
 vlan 1,10,20,1000
 vlan 10
@@ -202,6 +205,9 @@ feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
 
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
 fabric forwarding anycast-gateway-mac 1234.5678.0100
 vlan 1,10,1000
 vlan 10
@@ -282,6 +288,9 @@ feature interface-vlan
 feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
+
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
 
 fabric forwarding anycast-gateway-mac 1234.5678.0100
 vlan 1,20,1000
