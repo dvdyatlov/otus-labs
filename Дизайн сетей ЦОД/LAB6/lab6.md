@@ -1,9 +1,9 @@
-#         l2vpn evpn и ospf в качестве underlay
+#         l3vpn evpn (ospf в качестве underlay)
 
 ## План работы
-- конфигурим девайсы в соответствии с картинкой (спайны аристы, лифы нексусы)
-- проверяем доступность между loopback-ами - ospf underlay
-- конфигурим все девайсы в одну bgp as (ibgp), спайны как роут-рефлекторы, на всех  девайсах делаем bgp address-family evpn, все отдают bgp extended community
+- берем готовую конфигурацию лифов и спайнов из предыдущей лабы по l2vpn
+- добавляем нужное для l3vpn на лифах (конфигурация спайнов не меняется)
+- проверяем
 
 
 <p align="center">
@@ -105,14 +105,45 @@ nv overlay evpn
 feature ospf
 feature bgp
 feature fabric forwarding
+feature interface-vlan
 feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
-vlan 1,10,20
+
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,10,20,1000
 vlan 10
   vn-segment 10
 vlan 20
   vn-segment 20
+vlan 1000
+  vn-segment 1000
+
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+
+interface Vlan10
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.10.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan20
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.20.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  ip forward
+
 interface nve1
   no shutdown
   host-reachability protocol bgp
@@ -121,6 +152,7 @@ interface nve1
     ingress-replication protocol bgp
   member vni 20
     ingress-replication protocol bgp
+  member vni 1000 associate-vrf
 
 interface Ethernet1/1
   no switchport
@@ -165,18 +197,45 @@ nv overlay evpn
 feature ospf
 feature bgp
 feature fabric forwarding
+feature interface-vlan
 feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
-vlan 1,10
+
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,10,1000
 vlan 10
   vn-segment 10
+vlan 1000
+  vn-segment 1000
+
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+
+interface Vlan10
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.10.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  ip forward
+
 interface nve1
   no shutdown
   host-reachability protocol bgp
   source-interface loopback0
   member vni 10
     ingress-replication protocol bgp
+  member vni 1000 associate-vrf
+
 
 interface Ethernet1/1
   no switchport
@@ -219,25 +278,44 @@ nv overlay evpn
 feature ospf
 feature bgp
 feature fabric forwarding
+feature interface-vlan
 feature vn-segment-vlan-based
 feature bfd
 feature nv overlay
 
-vlan 1,20
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,20,1000
 vlan 20
   vn-segment 20
+vlan 1000
+  vn-segment 1000
+
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+
+interface Vlan20
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.20.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  ip forward
+
 interface nve1
   no shutdown
   host-reachability protocol bgp
   source-interface loopback0
   member vni 20
     ingress-replication protocol bgp
-interface nve1
-  no shutdown
-  host-reachability protocol bgp
-  source-interface loopback0
-  member vni 20
-    ingress-replication protocol bgp
+  member vni 1000 associate-vrf
 
 interface Ethernet1/1
   no switchport
