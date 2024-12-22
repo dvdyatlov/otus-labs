@@ -16,21 +16,25 @@
 3.hardware access-list tcam region racl 512 - освобождаем tcam под арп
 4.hardware access-list tcam region arp-ether 256 double-wide - назначаем tcam под арп
 тут нужна перезагрузка
-5.vrf context CUST-1 - создаем vrf под роутинг между vxlan
+5.создаем vrf под роутинг между vxlan
+vrf context CUST-1
   vni 1000
   rd auto
   address-family ipv4 unicast
     route-target both auto
     route-target both auto evpn
-6.vlan 1000 - создаем vlan, через который (ну т.е. через SVI который мы на нем потом сделаем) будут роутиться между собой все vxlan
+6.создаем vlan, через который (ну т.е. через SVI который мы на нем потом сделаем) будут роутиться между собой все vxlan
+vlan 1000
   vn-segment 1000
-7.interface nve1 - запихиваем 1000-й vni (т.е. ассоциированный с ним 1000-й vlan) в nve, а также запрещаем арп-бродкасты
+7.запихиваем 1000-й vni (т.е. ассоциированный с ним 1000-й vlan) в nve, а также запрещаем арп-бродкасты
+interface nve1
   member vni 10
     suppress-arp
   member vni 20
     suppress-arp
   member vni 1000 associate-vrf
-8.interface Vlan10 - создаем SVI-ки с соответствующими ip-шниками (где-то оба, где-то по одному), помещаем их в наш vrf, ну и говорим anycast-gateway
+8.создаем SVI-ки с соответствующими ip-шниками (где-то оба, где-то по одному), помещаем их в наш vrf, ну и говорим anycast-gateway
+interface Vlan10
   no shutdown
   vrf member CUST-1
   ip address 10.35.10.1/24
@@ -40,7 +44,8 @@ interface Vlan20
   vrf member CUST-1
   ip address 10.35.20.1/24
   fabric forwarding mode anycast-gateway
-9.interface Vlan1000 - создаем SVI, через который будут роутиться между собой все vxlan и помещаем его в тот же vrf, ip на нем не нужен
+9.создаем SVI, через который будут роутиться между собой все vxlan и помещаем его в тот же vrf, ip на нем не нужен
+interface Vlan1000
   no shutdown
   vrf member CUST-1
   ip forward
