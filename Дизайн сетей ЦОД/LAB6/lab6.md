@@ -16,7 +16,7 @@
 3.hardware access-list tcam region racl 512 - освобождаем tcam под арп
 4.hardware access-list tcam region arp-ether 256 double-wide - назначаем tcam под арп
 тут нужна перезагрузка
-5.vrf context CUST-1 - сщзлаем vrf под роутинг между vxlan
+5.vrf context CUST-1 - создаем vrf под роутинг между vxlan
   vni 1000
   rd auto
   address-family ipv4 unicast
