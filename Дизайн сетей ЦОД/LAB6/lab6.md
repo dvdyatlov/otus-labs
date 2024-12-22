@@ -7,7 +7,7 @@
 
 
 <p align="center">
- <img src="LAB5-arista-nxos-l2vpn.jpg" alt="qr"/>
+ <img src="LAB6-arista-nxos-l3vpn.jpg" alt="qr"/>
 </p>
 
 ## конфигурация arista-spine-1
