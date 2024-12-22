@@ -406,3 +406,25 @@ router bgp 65000
     inherit peer SPINES
 ```
 ## проверяем разное
+### пинги между машинами в разных комбинациях - разные vlan-ы на одном лифе, на разных лифах, один vlan на разных лифах
+```
+root@PC-1-10:/home/gns3# ping 10.35.20.11
+PING 10.35.20.11 (10.35.20.11): 56 data bytes
+64 bytes from 10.35.20.11: seq=0 ttl=63 time=1.760 ms
+64 bytes from 10.35.20.11: seq=1 ttl=63 time=2.490 ms
+
+root@PC-1-20:/home/gns3# ping 10.35.10.21
+PING 10.35.10.21 (10.35.10.21): 56 data bytes
+64 bytes from 10.35.10.21: seq=0 ttl=62 time=15.430 ms
+64 bytes from 10.35.10.21: seq=1 ttl=62 time=7.460 ms
+
+root@PC-2-10:/home/gns3# ping 10.35.10.11
+PING 10.35.10.11 (10.35.10.11): 56 data bytes
+64 bytes from 10.35.10.11: seq=0 ttl=64 time=8.472 ms
+64 bytes from 10.35.10.11: seq=1 ttl=64 time=10.520 ms
+
+root@PC-3-20:/home/gns3# ping 10.35.10.21
+PING 10.35.10.21 (10.35.10.21): 56 data bytes
+64 bytes from 10.35.10.21: seq=0 ttl=62 time=14.277 ms
+64 bytes from 10.35.10.21: seq=1 ttl=62 time=7.294 ms
+```
