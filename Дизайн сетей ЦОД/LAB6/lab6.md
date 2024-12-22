@@ -498,3 +498,15 @@ Topology    Mac Address    Host IP                                 Prod   Flags 
 20          0050.0000.0700 10.35.20.11                             HMM    L,            0         Local                                  
 20          0050.0000.0900 10.35.20.31                             BGP    --            0         10.33.30.0 (Label: 20)   
 ```
+### смотрим как работает suppress-arp
+```
+leaf-10# sh ip arp  suppression-cache local 
+Ip Address      Age      Mac Address    Vlan Physical-ifindex    Flags
+10.35.10.11     00:09:56 0050.0000.0600   10 Ethernet1/3         L
+10.35.20.11     00:10:37 0050.0000.0700   20 Ethernet1/4         L
+
+leaf-10# sh ip arp  suppression-cache remote 
+Ip Address      Age      Mac Address    Vlan Physical-ifindex    Flags    Remote Vtep Addrs
+10.35.10.21     01:23:52 0050.0000.0800   10 (null)              R        10.33.20.0  
+10.35.20.31     01:23:46 0050.0000.0900   20 (null)              R        10.33.30.0
+```
