@@ -152,8 +152,10 @@ interface nve1
   host-reachability protocol bgp
   source-interface loopback0
   member vni 10
+    suppress-arp
     ingress-replication protocol bgp
   member vni 20
+    suppress-arp
     ingress-replication protocol bgp
   member vni 1000 associate-vrf
 
@@ -239,6 +241,7 @@ interface nve1
   host-reachability protocol bgp
   source-interface loopback0
   member vni 10
+    suppress-arp
     ingress-replication protocol bgp
   member vni 1000 associate-vrf
 
@@ -323,6 +326,7 @@ interface nve1
   host-reachability protocol bgp
   source-interface loopback0
   member vni 20
+    suppress-arp
     ingress-replication protocol bgp
   member vni 1000 associate-vrf
 
