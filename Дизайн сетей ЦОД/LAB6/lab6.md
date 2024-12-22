@@ -24,8 +24,8 @@
     route-target both auto evpn
 6.vlan 1000 - создаем vlan, через который (ну т.е. через SVI который мы на нем потом сделаем) будут роутиться между собой все vxlan
   vn-segment 1000
-7.interface nve1
-  member vni 10 - запихиваем 1000-й vni (т.е. ассоциированный с ним 1000-й vlan) в nve, а также запрещаем арп-бродкасты
+7.interface nve1 - запихиваем 1000-й vni (т.е. ассоциированный с ним 1000-й vlan) в nve, а также запрещаем арп-бродкасты
+  member vni 10
     suppress-arp
   member vni 20
     suppress-arp
