@@ -4,98 +4,89 @@
 - берем готовую конфигурацию лифов и спайнов из предыдущей лабы по l3vpn
 - делаем VPC между 2 и 3 лифом
 - цепляем к 2 и 3 лифам свич sw-1, и клиента PC-3-20 к нему, как на картинке
-- сначала эти два линка между лифами и sw-1 - без агрегирования, чтобы stp отработал - проверяем как работает при дергании линков
+- сначала эти два линка между лифами и sw-1 делаем без агрегирования, чтобы stp отработал - проверяем как работает при дергании линков
 - потом агрегируем эти линки и смотрим еще раз
 
 <p align="center">
  <img src="lab7-l3vpn-vpc.jpg" alt="qr"/>
 </p>
-
-## изиенения конфига лифов по сравнению с l2vpn:
+конфиги спайнов и leaf-1 не меняются
+## изменения конфига leaf-2:
 ```
-1.feature interface-vlan - для создания SVI
-2.fabric forwarding anycast-gateway-mac 1234.5678.0100 - одинаковый мак на всех лифах на всех SVI
-3.hardware access-list tcam region racl 512 - освобождаем tcam под арп
-4.hardware access-list tcam region arp-ether 256 double-wide - назначаем tcam под арп
-тут нужна перезагрузка
-5.создаем vrf под роутинг между vxlan
-vrf context CUST-1
-  vni 1000
-  rd auto
-  address-family ipv4 unicast
-    route-target both auto
-    route-target both auto evpn
-6.создаем vlan, через который (ну т.е. через SVI который мы на нем потом сделаем) будут роутиться между собой все vxlan
-vlan 1000
-  vn-segment 1000
-7.запихиваем 1000-й vni (т.е. ассоциированный с ним 1000-й vlan) в nve, а также запрещаем арп-бродкасты
-interface nve1
-  member vni 10
-    suppress-arp
-  member vni 20
-    suppress-arp
-  member vni 1000 associate-vrf
-8.создаем SVI-ки с соответствующими ip-шниками (где-то оба, где-то по одному), помещаем их в наш vrf, ну и говорим anycast-gateway
-interface Vlan10
+feature lacp
+feature vpc
+
+vrf context vpc
+
+vpc domain 100
+  peer-switch
+  role priority 200
+  peer-keepalive destination 100.100.100.101 source 100.100.100.100 vrf vpc
+  delay restore 300
+  peer-gateway
+  layer3 peer-router
+  auto-recovery
+  delay restore interface-vlan 300
+  ip arp synchronize
+  
+interface Ethernet1/4
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/5
+  no switchport
+  vrf member vpc
+  ip address 100.100.100.100/31
   no shutdown
-  vrf member CUST-1
-  ip address 10.35.10.1/24
-  fabric forwarding mode anycast-gateway
-interface Vlan20
-  no shutdown
-  vrf member CUST-1
-  ip address 10.35.20.1/24
-  fabric forwarding mode anycast-gateway
-9.создаем SVI, через который будут роутиться между собой все vxlan и помещаем его в тот же vrf, ip на нем не нужен
-interface Vlan1000
-  no shutdown
-  vrf member CUST-1
-  ip forward
+
+interface Ethernet1/6
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/7
+  switchport mode trunk
+
+interface loopback0
+  ip address 10.33.100.0/32 secondary
 ```
 
-## конфигурация arista-spine-1 (не изменилась)
+## изменения конфига leaf-3:
 ```
-interface Ethernet1
-   no switchport
-   ip address 10.34.1.10/31
-   ip ospf network point-to-point
-   ip ospf area 0.0.0.0
-!
-interface Ethernet2
-   no switchport
-   ip address 10.34.1.20/31
-   ip ospf network point-to-point
-   ip ospf area 0.0.0.0
-!
-interface Ethernet3
-   no switchport
-   ip address 10.34.1.30/31
-   ip ospf network point-to-point
-   ip ospf area 0.0.0.0
-!
-interface Loopback1
-   ip address 10.32.1.0/32
-   ip ospf area 0.0.0.0
+feature lacp
+feature vpc
 
-ip routing
-!
-router bgp 65000
-   router-id 10.32.1.0
-   bgp listen range 10.33.0.0/16 peer-group LEAVES remote-as 65000
-   neighbor LEAVES peer group
-   neighbor LEAVES remote-as 65000
-   neighbor LEAVES update-source Loopback1
-   neighbor LEAVES bfd
-   neighbor LEAVES route-reflector-client
-   neighbor LEAVES send-community extended
-   !
-   address-family evpn
-      neighbor LEAVES activate
-!
-router ospf 65000
-   max-lsa 12000
-!
-end
+vrf context vpc
+
+vpc domain 100
+  peer-switch
+  role priority 100
+  peer-keepalive destination 100.100.100.100 source 100.100.100.101 vrf vpc
+  delay restore 300
+  peer-gateway
+  layer3 peer-router
+  auto-recovery
+  delay restore interface-vlan 300
+  ip arp synchronize
+  
+interface Ethernet1/4
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/5
+  no switchport
+  vrf member vpc
+  ip address 100.100.100.101/31
+  no shutdown
+
+interface Ethernet1/6
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/7
+  switchport mode trunk
+
+interface loopback0
+  ip address 10.33.100.0/32 secondary
 ```
    
 ## конфигурация arista-spine-2 (не изменилась)
