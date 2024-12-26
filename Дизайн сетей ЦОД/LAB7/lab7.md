@@ -105,7 +105,7 @@ interface Ethernet1/3
   switchport access vlan 20
 ```
 
-## проверяем разное
+## проверяем разное при варианте без агрегации
 ### пинги между PC-3-20 и PC-1-10
 ```
 root@PC-3-20:/home/gns3# ping 10.35.10.11
@@ -179,4 +179,27 @@ PING 10.35.10.11 (10.35.10.11): 56 data bytes
 47 packets transmitted, 15 packets received, 68% packet loss
 round-trip min/avg/max = 6.287/13.739/23.009 ms
 ```
+## делаем агрегацию
+### изменение конфигов на leaf-2 leaf-3 и sw-1
+```
+leaf-2 и leaf-3 одинаково:
 
+interface Ethernet1/7
+  switchport mode trunk
+  channel-group 10 mode active
+interface port-channel10
+  switchport mode trunk
+  vpc 10
+
+sw-1:
+
+interface Ethernet1/1
+  switchport mode trunk
+  channel-group 10 mode active
+
+interface Ethernet1/2
+  switchport mode trunk
+  channel-group 10 mode active
+interface port-channel10
+  switchport mode trunk
+```
