@@ -203,3 +203,55 @@ interface Ethernet1/2
 interface port-channel10
   switchport mode trunk
 ```
+## проверяем разное при варианте c агрегацией
+### пинги между PC-3-20 и PC-1-10
+```
+root@PC-3-20:/home/gns3# ping 10.35.10.11
+PING 10.35.10.11 (10.35.10.11): 56 data bytes
+64 bytes from 10.35.10.11: seq=1 ttl=62 time=23.412 ms
+64 bytes from 10.35.10.11: seq=2 ttl=62 time=10.729 ms
+```
+### смотрим vpc и агрегацию:
+```
+leaf-20# sh vpc
+Legend:
+                (*) - local vPC is down, forwarding via vPC peer-link
+
+vPC domain id                     : 100 
+Peer status                       : peer adjacency formed ok      
+vPC keep-alive status             : peer is alive                 
+Configuration consistency status  : success 
+Per-vlan consistency status       : success                       
+Type-2 consistency status         : success 
+vPC role                          : secondary                     
+Number of vPCs configured         : 1   
+Peer Gateway                      : Enabled
+Dual-active excluded VLANs        : -
+Graceful Consistency Check        : Enabled
+Auto-recovery status              : Enabled, timer is off.(timeout = 240s)
+Delay-restore status              : Timer is off.(timeout = 300s)
+Delay-restore SVI status          : Timer is off.(timeout = 300s)
+Operational Layer3 Peer-router    : Enabled
+Virtual-peerlink mode             : Disabled
+
+vPC Peer-link status
+---------------------------------------------------------------------
+id    Port   Status Active vlans    
+--    ----   ------ -------------------------------------------------
+1     Po100  up     1,10,20,1000                                                
+         
+
+vPC status
+----------------------------------------------------------------------------
+Id    Port          Status Consistency Reason                Active vlans
+--    ------------  ------ ----------- ------                ---------------
+10    Po10          up     success     success               1,10,20,1000       
+         
+nexus-sw-1# sh port-c su
+--------------------------------------------------------------------------------
+Group Port-       Type     Protocol  Member Ports
+      Channel
+--------------------------------------------------------------------------------
+10    Po10(SU)    Eth      LACP      Eth1/1(P)    Eth1/2(P) 
+```
+### ломаем один линк, потом возвращаем его, при этом смотрим на пинг - никаких потерь
