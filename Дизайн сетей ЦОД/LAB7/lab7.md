@@ -11,6 +11,7 @@
  <img src="lab7-l3vpn-vpc.jpg" alt="qr"/>
 </p>
 конфиги спайнов и leaf-1 не меняются
+
 ## изменения конфига leaf-2:
 ```
 feature lacp
