@@ -106,109 +106,77 @@ interface Ethernet1/3
 ```
 
 ## проверяем разное
-### пинги между машинами в разных комбинациях - разные vlan-ы на одном лифе, на разных лифах, один vlan на разных лифах
-
+### пинги между PC-3-20 и PC-1-10
 ```
-root@PC-1-10:/home/gns3# ping 10.35.20.11
-PING 10.35.20.11 (10.35.20.11): 56 data bytes
-64 bytes from 10.35.20.11: seq=0 ttl=63 time=1.760 ms
-64 bytes from 10.35.20.11: seq=1 ttl=63 time=2.490 ms
-
-root@PC-1-20:/home/gns3# ping 10.35.10.21
-PING 10.35.10.21 (10.35.10.21): 56 data bytes
-64 bytes from 10.35.10.21: seq=0 ttl=62 time=15.430 ms
-64 bytes from 10.35.10.21: seq=1 ttl=62 time=7.460 ms
-
-root@PC-2-10:/home/gns3# ping 10.35.10.11
+root@PC-3-20:/home/gns3# ping 10.35.10.11
 PING 10.35.10.11 (10.35.10.11): 56 data bytes
-64 bytes from 10.35.10.11: seq=0 ttl=64 time=8.472 ms
-64 bytes from 10.35.10.11: seq=1 ttl=64 time=10.520 ms
-
-root@PC-3-20:/home/gns3# ping 10.35.10.21
-PING 10.35.10.21 (10.35.10.21): 56 data bytes
-64 bytes from 10.35.10.21: seq=0 ttl=62 time=14.277 ms
-64 bytes from 10.35.10.21: seq=1 ttl=62 time=7.294 ms
+64 bytes from 10.35.10.11: seq=0 ttl=62 time=17.566 ms
+64 bytes from 10.35.10.11: seq=1 ttl=62 time=6.517 ms
 ```
-### смотрим таблицы роутов - видим что появились маршруты вида mac-ip и добавилась секция L3VNI
+### смотрим что заблочен один линк на sw-1
 ```
-leaf-10# sh bgp l2vpn evpn vrf all 
-   Network            Next Hop            Metric     LocPrf     Weight Path
-Route Distinguisher: 10.33.10.0:32777    (L2VNI 10)
-*>l[2]:[0]:[0]:[48]:[0050.0000.0600]:[0]:[0.0.0.0]/216
-                      10.33.10.0                        100      32768 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0800]:[0]:[0.0.0.0]/216
-                      10.33.20.0                        100          0 i
-*>l[2]:[0]:[0]:[48]:[0050.0000.0600]:[32]:[10.35.10.11]/272
-                      10.33.10.0                        100      32768 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0800]:[32]:[10.35.10.21]/272
-                      10.33.20.0                        100          0 i
-*>l[3]:[0]:[32]:[10.33.10.0]/88
-                      10.33.10.0                        100      32768 i
-*>i[3]:[0]:[32]:[10.33.20.0]/88
-                      10.33.20.0                        100          0 i
+nexus-sw-1# sh spanning-tree blockedports 
 
-Route Distinguisher: 10.33.10.0:32787    (L2VNI 20)
-*>l[2]:[0]:[0]:[48]:[0050.0000.0700]:[0]:[0.0.0.0]/216
-                      10.33.10.0                        100      32768 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[0]:[0.0.0.0]/216
-                      10.33.30.0                        100          0 i
-*>l[2]:[0]:[0]:[48]:[0050.0000.0700]:[32]:[10.35.20.11]/272
-                      10.33.10.0                        100      32768 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[32]:[10.35.20.31]/272
-                      10.33.30.0                        100          0 i
-*>l[3]:[0]:[32]:[10.33.10.0]/88
-                      10.33.10.0                        100      32768 i
-*>i[3]:[0]:[32]:[10.33.30.0]/88
-                      10.33.30.0                        100          0 i
+Name                 Blocked Interfaces List
+-------------------- ------------------------------------
+VLAN0001             Eth1/2
+VLAN0020             Eth1/2
 
-Route Distinguisher: 10.33.20.0:32777
-* i[2]:[0]:[0]:[48]:[0050.0000.0800]:[0]:[0.0.0.0]/216
-                      10.33.20.0                        100          0 i
-*>i                   10.33.20.0                        100          0 i
-* i[2]:[0]:[0]:[48]:[0050.0000.0800]:[32]:[10.35.10.21]/272
-                      10.33.20.0                        100          0 i
-*>i                   10.33.20.0                        100          0 i
-* i[3]:[0]:[32]:[10.33.20.0]/88
-                      10.33.20.0                        100          0 i
-*>i                   10.33.20.0                        100          0 i
-
-Route Distinguisher: 10.33.30.0:32787
-*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[0]:[0.0.0.0]/216
-                      10.33.30.0                        100          0 i
-* i                   10.33.30.0                        100          0 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[32]:[10.35.20.31]/272
-                      10.33.30.0                        100          0 i
-* i                   10.33.30.0                        100          0 i
-*>i[3]:[0]:[32]:[10.33.30.0]/88
-                      10.33.30.0                        100          0 i
-* i                   10.33.30.0                        100          0 i
-
-Route Distinguisher: 10.33.10.0:3    (L3VNI 1000)
-*>i[2]:[0]:[0]:[48]:[0050.0000.0800]:[32]:[10.35.10.21]/272
-                      10.33.20.0                        100          0 i
-*>i[2]:[0]:[0]:[48]:[0050.0000.0900]:[32]:[10.35.20.31]/272
-                      10.33.30.0                        100          0 i
+Number of blocked ports (segments) in the system : 2
 ```
-### также появилась табличка, которая раньше была пустой
+### гасим не заблоченный, рабочий линк и смотрим на потери пакетов - ну да, 4 потерялось
 ```
-leaf-10# sh l2route mac-ip all 
-Topology    Mac Address    Host IP                                 Prod   Flags         Seq No     Next-Hops                              
------------ -------------- --------------------------------------- ------ ---------- ---------- ---------------------------------------
-10          0050.0000.0600 10.35.10.11                             HMM    L,            0         Local                                  
-10          0050.0000.0800 10.35.10.21                             BGP    --            0         10.33.20.0 (Label: 10)                 
-20          0050.0000.0700 10.35.20.11                             HMM    L,            0         Local                                  
-20          0050.0000.0900 10.35.20.31                             BGP    --            0         10.33.30.0 (Label: 20)   
-```
-### смотрим как работает suppress-arp
-```
-leaf-10# sh ip arp  suppression-cache local 
-Ip Address      Age      Mac Address    Vlan Physical-ifindex    Flags
-10.35.10.11     00:09:56 0050.0000.0600   10 Ethernet1/3         L
-10.35.20.11     00:10:37 0050.0000.0700   20 Ethernet1/4         L
+root@PC-3-20:/home/gns3# ping 10.35.10.11
+PING 10.35.10.11 (10.35.10.11): 56 data bytes
+64 bytes from 10.35.10.11: seq=0 ttl=62 time=11.207 ms
+64 bytes from 10.35.10.11: seq=1 ttl=62 time=11.343 ms
+64 bytes from 10.35.10.11: seq=2 ttl=62 time=18.053 ms
+64 bytes from 10.35.10.11: seq=3 ttl=62 time=12.569 ms
+64 bytes from 10.35.10.11: seq=4 ttl=62 time=12.721 ms
+64 bytes from 10.35.10.11: seq=5 ttl=62 time=13.462 ms
+64 bytes from 10.35.10.11: seq=6 ttl=62 time=11.945 ms
 
-leaf-10# sh ip arp  suppression-cache remote 
-Ip Address      Age      Mac Address    Vlan Physical-ifindex    Flags    Remote Vtep Addrs
-10.35.10.21     01:23:52 0050.0000.0800   10 (null)              R        10.33.20.0  
-10.35.20.31     01:23:46 0050.0000.0900   20 (null)              R        10.33.30.0
+
+
+
+64 bytes from 10.35.10.11: seq=11 ttl=62 time=12.567 ms
+64 bytes from 10.35.10.11: seq=12 ttl=62 time=13.596 ms
+64 bytes from 10.35.10.11: seq=13 ttl=62 time=8.969 ms
+64 bytes from 10.35.10.11: seq=14 ttl=62 time=11.132 ms
+64 bytes from 10.35.10.11: seq=15 ttl=62 time=9.867 ms
+64 bytes from 10.35.10.11: seq=16 ttl=62 time=10.982 ms
+64 bytes from 10.35.10.11: seq=17 ttl=62 time=8.121 ms
+64 bytes from 10.35.10.11: seq=18 ttl=62 time=16.799 ms
+64 bytes from 10.35.10.11: seq=19 ttl=62 time=6.211 ms
+^C
+--- 10.35.10.11 ping statistics ---
+20 packets transmitted, 16 packets received, 20% packet loss
+```
+### поднимаем линк обратно и смотрим на потери - пропало аж 30 секунд
+```
+root@PC-3-20:/home/gns3# ping 10.35.10.11
+PING 10.35.10.11 (10.35.10.11): 56 data bytes
+64 bytes from 10.35.10.11: seq=0 ttl=62 time=20.423 ms
+64 bytes from 10.35.10.11: seq=1 ttl=62 time=16.947 ms
+64 bytes from 10.35.10.11: seq=2 ttl=62 time=22.277 ms
+64 bytes from 10.35.10.11: seq=3 ttl=62 time=8.586 ms
+64 bytes from 10.35.10.11: seq=4 ttl=62 time=11.559 ms
+64 bytes from 10.35.10.11: seq=5 ttl=62 time=13.333 ms
+64 bytes from 10.35.10.11: seq=6 ttl=62 time=12.995 ms
+64 bytes from 10.35.10.11: seq=7 ttl=62 time=23.009 ms
+64 bytes from 10.35.10.11: seq=8 ttl=62 time=13.416 ms
+64 bytes from 10.35.10.11: seq=9 ttl=62 time=6.455 ms
+
+
+
+64 bytes from 10.35.10.11: seq=42 ttl=62 time=10.556 ms
+64 bytes from 10.35.10.11: seq=43 ttl=62 time=22.545 ms
+64 bytes from 10.35.10.11: seq=44 ttl=62 time=11.351 ms
+64 bytes from 10.35.10.11: seq=45 ttl=62 time=6.287 ms
+64 bytes from 10.35.10.11: seq=46 ttl=62 time=6.346 ms
+^C
+--- 10.35.10.11 ping statistics ---
+47 packets transmitted, 15 packets received, 68% packet loss
+round-trip min/avg/max = 6.287/13.739/23.009 ms
 ```
 
