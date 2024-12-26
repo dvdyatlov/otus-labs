@@ -6,7 +6,7 @@
 - проверяем
 
 <p align="center">
- <img src="LAB6-arista-nxos-l3vpn.jpg" alt="qr"/>
+ <img src="lab7-l3vpn-vpc.jpg" alt="qr"/>
 </p>
 
 ## изиенения конфига лифов по сравнению с l2vpn:
