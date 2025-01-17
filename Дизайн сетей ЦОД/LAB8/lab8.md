@@ -30,7 +30,8 @@ feature bfd
 feature nv overlay
 
 fabric forwarding anycast-gateway-mac 1234.5678.0100
-vlan 1,10,20,<mark style="background-color: lightblue">210,220,</mark>1000,2000
+vlan 1,10,20,1000,2000
+### vlan 210,220
 vlan 10
   vn-segment 10
 vlan 20
