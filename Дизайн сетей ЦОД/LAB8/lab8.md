@@ -3,7 +3,7 @@
 ## План работы
 - берем готовую конфигурацию лифов и спайнов из предыдущей лабы по multihoming-у
 - создаем на всех лифах вторую VRF
-- к бордер-лифам (leaf-2 и leaf-3, которые в VPC) чепляем router-on-the-stick - asr1000v (Border-1), etherchannel к VPC-паре
+- к бордер-лифам (leaf-2n и leaf-3n, которые в VPC) цепляем router-on-the-stick - asr1000v (Border), port-channel к VPC-паре
 - от Border-1 делаем два point-to-point-а - один к бордер-лифам в одну VRF, второй в другую VRF
 - создаем на бордер-лифах ipv4 address-family и строим на обоих point-to-point-ах eBGP ipv4
 - на Border-е настраиваем на обоих eBGP-пирах as-override, чтобы Border передавал маршруты от одного пира (vrf CUST-1) другому (vrf CUST-2) с подменой as-path на свою AS, и наоборот
