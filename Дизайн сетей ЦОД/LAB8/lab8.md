@@ -10,7 +10,7 @@
 - проверяем что получилось
 
 <p align="center">
- <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr"/>
+ <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr" width="50%" height="50%"/>
 </p>
 конфиги спайнов и leaf-1 не меняются
 
