@@ -19,6 +19,7 @@
  
 <summary> конфиг leaf-1 (изменения выделены):</summary>
 
+```
 leaf-10# sh run
 hostname leaf-10
 
@@ -288,6 +289,7 @@ router bgp 65000
     inherit peer SPINES
   neighbor 10.32.2.0
     inherit peer SPINES
+```
 
 </details>
    
