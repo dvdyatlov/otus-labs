@@ -12,10 +12,9 @@
 <p align="center">
  <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr" width="150%" height="150%"/>
 </p>
-> конфиги спайнов не меняются
+### конфиги спайнов не меняются
 
-<details><summary> конфиг leaf-1 (изменения выделены): </summary>
-
+<details><summary>конфиг leaf-1</summary>
 ```
 leaf-10# sh run
 hostname leaf-10
@@ -286,7 +285,6 @@ router bgp 65000
   neighbor 10.32.2.0
     inherit peer SPINES
 ```
-
 </details>
    
 ## конфигурация sw-1
