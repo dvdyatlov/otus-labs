@@ -14,12 +14,11 @@
 </p>
 конфиги спайнов не меняются
 
-## конфиг leaf-1 (изменения выделены):
 <details>
  
-<summary> конфиг leaf-1 (изменения выделены):</summary>
+<summary> *конфиг leaf-1 (изменения выделены):* </summary>
 
-```highlight
+```
 leaf-10# sh run
 hostname leaf-10
 
@@ -34,8 +33,7 @@ feature bfd
 feature nv overlay
 
 fabric forwarding anycast-gateway-mac 1234.5678.0100
-vlan 1,10,20,1000,2000
-### vlan 210,220
+vlan 1,10,20,1000,*210,220,2000*
 vlan 10
   vn-segment 10
 vlan 20
