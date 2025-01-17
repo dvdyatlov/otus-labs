@@ -16,7 +16,7 @@
 
 <details>
  
-<summary> *конфиг leaf-1 (изменения выделены):* </summary>
+### <summary> конфиг leaf-1 (изменения выделены): </summary>
 
 ```
 leaf-10# sh run
