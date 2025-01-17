@@ -13,7 +13,7 @@
  <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr" width="150%" height="150%"/>
 </p>
 
-### конфиги спайнов не меняются
+## конфиги спайнов не меняются
 
 <details><summary>
  
@@ -293,21 +293,28 @@ router bgp 65000
 ```
 
 </details>
-   
-## конфигурация sw-1
+
+<details><summary>
+ 
+### конфиг leaf-2n
+
+</summary>
+ 
 ```
-hostname nexus-sw-1
-vlan 1,20
-
-interface Ethernet1/1
-  switchport mode trunk
-
-interface Ethernet1/2
-  switchport mode trunk
-
-interface Ethernet1/3
-  switchport access vlan 20
 ```
+
+</details>
+
+<details><summary>
+ 
+### конфиг leaf-3n
+
+</summary>
+ 
+```
+```
+
+</details>
 
 ## проверяем разное при варианте без агрегации
 ### пинги между PC-3-20 и PC-1-10
