@@ -36,10 +36,7 @@ feature bfd
 feature nv overlay
 
 fabric forwarding anycast-gateway-mac 1234.5678.0100
-vlan 1,10,20,1000,
-
-**210,220,2000**
-
+vlan 1,10,20,1000,210,220,2000
 vlan 10
   vn-segment 10
 vlan 20
@@ -68,9 +65,6 @@ vrf context CUST-2
 vrf context management
 hardware access-list tcam region racl 512
 hardware access-list tcam region arp-ether 256 double-wide
-
-
-interface Vlan1
 
 interface Vlan10
   no shutdown
@@ -148,138 +142,11 @@ interface Ethernet1/4
 interface Ethernet1/5
   switchport access vlan 210
 
-interface Ethernet1/6
-
-interface Ethernet1/7
-
-interface Ethernet1/8
-
-interface Ethernet1/9
-
-interface Ethernet1/10
-
-interface Ethernet1/11
-
-interface Ethernet1/12
-
-interface Ethernet1/13
-
-interface Ethernet1/14
-
-interface Ethernet1/15
-
-interface Ethernet1/16
-
-interface Ethernet1/17
-
-interface Ethernet1/18
-
-interface Ethernet1/19
-
-interface Ethernet1/20
-
-interface Ethernet1/21
-
-interface Ethernet1/22
-
-interface Ethernet1/23
-
-interface Ethernet1/24
-
-interface Ethernet1/25
-
-interface Ethernet1/26
-
-interface Ethernet1/27
-
-interface Ethernet1/28
-
-interface Ethernet1/29
-
-interface Ethernet1/30
-
-interface Ethernet1/31
-
-interface Ethernet1/32
-
-interface Ethernet1/33
-
-interface Ethernet1/34
-
-interface Ethernet1/35
-
-interface Ethernet1/36
-
-interface Ethernet1/37
-
-interface Ethernet1/38
-
-interface Ethernet1/39
-
-interface Ethernet1/40
-
-interface Ethernet1/41
-
-interface Ethernet1/42
-
-interface Ethernet1/43
-
-interface Ethernet1/44
-
-interface Ethernet1/45
-
-interface Ethernet1/46
-
-interface Ethernet1/47
-
-interface Ethernet1/48
-
-interface Ethernet1/49
-
-interface Ethernet1/50
-
-interface Ethernet1/51
-
-interface Ethernet1/52
-
-interface Ethernet1/53
-
-interface Ethernet1/54
-
-interface Ethernet1/55
-
-interface Ethernet1/56
-
-interface Ethernet1/57
-
-interface Ethernet1/58
-
-interface Ethernet1/59
-
-interface Ethernet1/60
-
-interface Ethernet1/61
-
-interface Ethernet1/62
-
-interface Ethernet1/63
-
-interface Ethernet1/64
-
-interface mgmt0
-  vrf member management
-
 interface loopback0
   ip address 10.33.10.0/32
   ip router ospf 65000 area 0.0.0.0
 icam monitor scale
 
-cli alias name i show interface status
-cli alias name wr copy running start
-line console
-  exec-timeout 0
-line vty
-boot nxos bootflash:/nxos.9.3.14.bin 
 router ospf 65000
 router bgp 65000
   address-family l2vpn evpn
