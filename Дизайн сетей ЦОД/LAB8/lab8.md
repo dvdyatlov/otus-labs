@@ -5,91 +5,285 @@
 - создаем на всех лифах вторую VRF
 - к бордер-лифам (leaf-2n и leaf-3n, которые в VPC) цепляем router-on-the-stick - asr1000v (Border), port-channel к VPC-паре
 - от Border-1 делаем два point-to-point-а - один к бордер-лифам в одну VRF, второй в другую VRF
-- создаем на бордер-лифах ipv4 address-family и строим на обоих point-to-point-ах eBGP ipv4
+- создаем на бордер-лифах ipv4 address-family и строим на обоих point-to-point-ах eBGP ipv4 к Border-у
 - на Border-е настраиваем на обоих eBGP-пирах as-override, чтобы Border передавал маршруты от одного пира (vrf CUST-1) другому (vrf CUST-2) с подменой as-path на свою AS, и наоборот
 - проверяем что получилось
 
 <p align="center">
  <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr" width="150%" height="150%"/>
 </p>
-конфиги спайнов и leaf-1 не меняются
+конфиги спайнов не меняются
 
-## изменения конфига leaf-2:
+## конфиг leaf-1 (изменения выделены):
 ```
-feature lacp
-feature vpc
+leaf-10# sh run
+hostname leaf-10
 
-vrf context vpc
+nv overlay evpn
+feature ospf
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature lldp
+feature bfd
+feature nv overlay
 
-vpc domain 100
-  peer-switch
-  role priority 200
-  peer-keepalive destination 100.100.100.101 source 100.100.100.100 vrf vpc
-  delay restore 300
-  peer-gateway
-  layer3 peer-router
-  auto-recovery
-  delay restore interface-vlan 300
-  ip arp synchronize
-  
-interface Ethernet1/4
-  switchport mode trunk
-  channel-group 100 mode active
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,10,20,<mark style="background-color: lightblue">210,220,</mark>1000,2000
+vlan 10
+  vn-segment 10
+vlan 20
+  vn-segment 20
+vlan 210
+  vn-segment 210
+vlan 220
+  vn-segment 220
+vlan 1000
+  vn-segment 1000
+vlan 2000
+  vn-segment 2000
 
-interface Ethernet1/5
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context CUST-2
+  vni 2000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
+
+interface Vlan1
+
+interface Vlan10
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.10.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan20
+  no shutdown
+  vrf member CUST-1
+  ip address 10.35.20.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan210
+  no shutdown
+  vrf member CUST-2
+  ip address 10.235.10.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan220
+  no shutdown
+  vrf member CUST-2
+  ip address 10.235.20.1/24
+  fabric forwarding mode anycast-gateway
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  ip forward
+
+interface Vlan2000
+  no shutdown
+  vrf member CUST-2
+  ip forward
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  source-interface loopback0
+  member vni 10
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 20
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 210
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 220
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 1000 associate-vrf
+  member vni 2000 associate-vrf
+
+interface Ethernet1/1
   no switchport
-  vrf member vpc
-  ip address 100.100.100.100/31
+  ip address 10.34.1.11/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
   no shutdown
 
-interface Ethernet1/6
-  switchport mode trunk
-  channel-group 100 mode active
-
-interface Ethernet1/7
-  switchport mode trunk
-
-interface loopback0
-  ip address 10.33.100.0/32 secondary
-```
-
-## изменения конфига leaf-3:
-```
-feature lacp
-feature vpc
-
-vrf context vpc
-
-vpc domain 100
-  peer-switch
-  role priority 100
-  peer-keepalive destination 100.100.100.100 source 100.100.100.101 vrf vpc
-  delay restore 300
-  peer-gateway
-  layer3 peer-router
-  auto-recovery
-  delay restore interface-vlan 300
-  ip arp synchronize
-  
-interface Ethernet1/4
-  switchport mode trunk
-  channel-group 100 mode active
-
-interface Ethernet1/5
+interface Ethernet1/2
   no switchport
-  vrf member vpc
-  ip address 100.100.100.101/31
+  ip address 10.34.2.11/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
   no shutdown
 
+interface Ethernet1/3
+  switchport access vlan 10
+
+interface Ethernet1/4
+  switchport access vlan 20
+
+interface Ethernet1/5
+  switchport access vlan 210
+
 interface Ethernet1/6
-  switchport mode trunk
-  channel-group 100 mode active
 
 interface Ethernet1/7
-  switchport mode trunk
+
+interface Ethernet1/8
+
+interface Ethernet1/9
+
+interface Ethernet1/10
+
+interface Ethernet1/11
+
+interface Ethernet1/12
+
+interface Ethernet1/13
+
+interface Ethernet1/14
+
+interface Ethernet1/15
+
+interface Ethernet1/16
+
+interface Ethernet1/17
+
+interface Ethernet1/18
+
+interface Ethernet1/19
+
+interface Ethernet1/20
+
+interface Ethernet1/21
+
+interface Ethernet1/22
+
+interface Ethernet1/23
+
+interface Ethernet1/24
+
+interface Ethernet1/25
+
+interface Ethernet1/26
+
+interface Ethernet1/27
+
+interface Ethernet1/28
+
+interface Ethernet1/29
+
+interface Ethernet1/30
+
+interface Ethernet1/31
+
+interface Ethernet1/32
+
+interface Ethernet1/33
+
+interface Ethernet1/34
+
+interface Ethernet1/35
+
+interface Ethernet1/36
+
+interface Ethernet1/37
+
+interface Ethernet1/38
+
+interface Ethernet1/39
+
+interface Ethernet1/40
+
+interface Ethernet1/41
+
+interface Ethernet1/42
+
+interface Ethernet1/43
+
+interface Ethernet1/44
+
+interface Ethernet1/45
+
+interface Ethernet1/46
+
+interface Ethernet1/47
+
+interface Ethernet1/48
+
+interface Ethernet1/49
+
+interface Ethernet1/50
+
+interface Ethernet1/51
+
+interface Ethernet1/52
+
+interface Ethernet1/53
+
+interface Ethernet1/54
+
+interface Ethernet1/55
+
+interface Ethernet1/56
+
+interface Ethernet1/57
+
+interface Ethernet1/58
+
+interface Ethernet1/59
+
+interface Ethernet1/60
+
+interface Ethernet1/61
+
+interface Ethernet1/62
+
+interface Ethernet1/63
+
+interface Ethernet1/64
+
+interface mgmt0
+  vrf member management
 
 interface loopback0
-  ip address 10.33.100.0/32 secondary
+  ip address 10.33.10.0/32
+  ip router ospf 65000 area 0.0.0.0
+icam monitor scale
+
+cli alias name i show interface status
+cli alias name wr copy running start
+line console
+  exec-timeout 0
+line vty
+boot nxos bootflash:/nxos.9.3.14.bin 
+router ospf 65000
+router bgp 65000
+  address-family l2vpn evpn
+  template peer SPINES
+    remote-as 65000
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.32.1.0
+    inherit peer SPINES
+  neighbor 10.32.2.0
+    inherit peer SPINES
 ```
    
 ## конфигурация sw-1
