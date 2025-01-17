@@ -19,7 +19,7 @@
  
 <summary> конфиг leaf-1 (изменения выделены):</summary>
 
-```
+```highlight
 leaf-10# sh run
 hostname leaf-10
 
