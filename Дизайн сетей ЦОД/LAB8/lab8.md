@@ -15,7 +15,11 @@
 
 ### конфиги спайнов не меняются
 
-<details><summary>конфиг leaf-1</summary>
+<details><summary>
+ 
+### конфиг leaf-1
+
+</summary>
  
 ```
 leaf-10# sh run
