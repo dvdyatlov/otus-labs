@@ -837,7 +837,7 @@ end
 1. На бордер-лифах 2 и 3 мы создаем ip-соседство к бродер-роутеру и
 
 ### устройство сразу, без дополнительных настроек, все роуты, которые прилетели в него в af evpn (из остальной фабрики), начинает транслировать/редистрибутить в af ipv4, и раздавать соответственно в сторону ip-нейборов. И наоборот (в виде type-5)
-вот например на leaf-2 (мы не говорили пока никаких редистрибьютов вообще):
+вот например на leaf-2 (мы не говорили пока никаких редистрибьютов вообще) мы видим два роуту, возникшие из bgp evpn:
 ```
 leaf-20n# sh ip route vrf CUST-1
 IP Route Table for VRF "CUST-1"
@@ -848,7 +848,7 @@ IP Route Table for VRF "CUST-1"
     *via 10.35.10.1, Vlan10, [0/0], 6d19h, direct
 10.35.10.1/32, ubest/mbest: 1/0, attached
     *via 10.35.10.1, Vlan10, [0/0], 6d19h, local
-**10.35.10.11/32, ubest/mbest: 1/0**
+10.35.10.11/32, ubest/mbest: 1/0
     *via 10.33.10.0%default, [200/0], 3d06h, bgp-65000, internal, tag 65000, segid: 1000 tunnelid: 0xa210a00 encap: VXLAN
  
 10.35.10.21/32, ubest/mbest: 1/0, attached
@@ -866,4 +866,13 @@ IP Route Table for VRF "CUST-1"
     *via 200.0.0.1, Vlan500, [0/0], 6d19h, direct
 200.0.0.1/32, ubest/mbest: 1/0, attached
     *via 200.0.0.1, Vlan500, [0/0], 6d19h, local
+```
+И вот они же на Boreder-е:
+```
+Border-1#sh ip bgp neighbors 200.0.0.1 routes          
+BGP table version is 23, local router ID is 8.8.8.8
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>   10.35.10.11/32   200.0.0.1                              0 65000 i
+ *>   10.35.20.11/32   200.0.0.1                              0 65000 i
+Total number of prefixes 2 
 ```
