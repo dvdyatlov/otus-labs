@@ -915,3 +915,12 @@ Total number of prefixes 3
 если хочется сэкономить, можно редистрибутить не hmm, а direct, тогда в другой vrf отдаются только /24-е роуты
 
 ну и да, конечно все машины между собой пингаются как и хотелось
+```
+root@PC-1-10:/home/gns3# ping 10.235.20.10
+PING 10.235.20.10 (10.235.20.10): 56 data bytes
+64 bytes from 10.235.20.10: seq=0 ttl=60 time=17.147 ms
+64 bytes from 10.235.20.10: seq=1 ttl=60 time=17.557 ms
+^C
+--- 10.235.20.10 ping statistics ---
+2 packets transmitted, 2 packets received, 0% packet loss
+```
