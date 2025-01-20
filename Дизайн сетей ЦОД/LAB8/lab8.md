@@ -13,7 +13,16 @@
  <img src="lab8-l3vpn-inter-vrf.jpg" alt="qr" width="150%" height="150%"/>
 </p>
 
-## конфиги спайнов не меняются
+<details><summary>
+ 
+### конфиги спайнов не меняются
+
+</summary>
+ 
+```
+```
+
+</details>
 
 <details><summary>
  
