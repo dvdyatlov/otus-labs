@@ -175,6 +175,9 @@ feature lldp
 feature bfd
 feature nv overlay
 
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
 fabric forwarding anycast-gateway-mac 1234.5678.0100
 vlan 1,10,20,1000,210,220,2000
 vlan 10
@@ -311,6 +314,224 @@ router bgp 65000
 </summary>
  
 ```
+leaf-20n# sh run
+hostname leaf-2n
+nv overlay evpn
+feature ospf
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature lacp
+feature vpc
+feature lldp
+feature bfd
+feature nv overlay
+
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,10,20,210,220,500,600,1000,2000
+vlan 10
+  vn-segment 10
+vlan 20
+  vn-segment 20
+vlan 210
+  vn-segment 210
+vlan 220
+  vn-segment 220
+vlan 1000
+  vn-segment 1000
+vlan 2000
+  vn-segment 2000
+
+route-map c-to-bgp permit 10
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context CUST-2
+  vni 2000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+vrf context vpc
+vpc domain 100
+  peer-switch
+  role priority 200
+  peer-keepalive destination 100.100.100.101 source 100.100.100.100 vrf vpc
+  delay restore 300
+  peer-gateway
+  layer3 peer-router
+  auto-recovery
+  delay restore interface-vlan 300
+  ip arp synchronize
+
+
+interface Vlan1
+  no ip redirects
+  no ipv6 redirects
+
+interface Vlan10
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 10.35.10.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan20
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 10.35.20.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan210
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 10.235.10.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan220
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 10.235.20.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan500
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 200.0.0.1/29
+  no ipv6 redirects
+
+interface Vlan600
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 220.0.0.1/29
+  no ipv6 redirects
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip forward
+  no ipv6 redirects
+
+interface Vlan2000
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip forward
+  no ipv6 redirects
+
+interface port-channel10
+  switchport mode trunk
+  vpc 10
+
+interface port-channel100
+  switchport mode trunk
+  spanning-tree port type network
+  vpc peer-link
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  advertise virtual-rmac
+  source-interface loopback0
+  member vni 10
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 20
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 210
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 220
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 1000 associate-vrf
+  member vni 2000 associate-vrf
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.34.1.21/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/2
+  no switchport
+  ip address 10.34.2.21/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/3
+  switchport access vlan 10
+
+interface Ethernet1/4
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/5
+  no switchport
+  vrf member vpc
+  ip address 100.100.100.100/31
+  no shutdown
+
+interface Ethernet1/6
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/7
+  switchport mode trunk
+  channel-group 10 mode active
+
+interface loopback0
+  ip address 10.33.20.0/32
+  ip address 10.33.100.0/32 secondary
+  ip router ospf 65000 area 0.0.0.0
+
+router ospf 65000
+router bgp 65000
+  address-family l2vpn evpn
+    advertise-pip
+  template peer SPINES
+    remote-as 65000
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.32.1.0
+    inherit peer SPINES
+  neighbor 10.32.2.0
+    inherit peer SPINES
+  vrf CUST-1
+    neighbor 200.0.0.3
+      remote-as 65100
+      address-family ipv4 unicast
+        send-community
+        send-community extended
+  vrf CUST-2
+    neighbor 220.0.0.3
+      remote-as 65100
+      address-family ipv4 unicast
+        send-community
+        send-community extended
 ```
 
 </details>
@@ -322,6 +543,225 @@ router bgp 65000
 </summary>
  
 ```
+leaf-3n# sh run
+hostname leaf-3n
+nv overlay evpn
+feature ospf
+feature bgp
+feature fabric forwarding
+feature interface-vlan
+feature vn-segment-vlan-based
+feature lacp
+feature vpc
+feature lldp
+feature bfd
+feature nv overlay
+
+hardware access-list tcam region racl 512
+hardware access-list tcam region arp-ether 256 double-wide
+
+fabric forwarding anycast-gateway-mac 1234.5678.0100
+vlan 1,10,20,210,220,500,600,1000,2000
+vlan 10
+  vn-segment 10
+vlan 20
+  vn-segment 20
+vlan 210
+  vn-segment 210
+vlan 220
+  vn-segment 220
+vlan 1000
+  vn-segment 1000
+vlan 2000
+  vn-segment 2000
+
+route-map c-to-bgp permit 10
+vrf context CUST-1
+  vni 1000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context CUST-2
+  vni 2000
+  rd auto
+  address-family ipv4 unicast
+    route-target both auto
+    route-target both auto evpn
+vrf context management
+vrf context vpc
+vpc domain 100
+  peer-switch
+  role priority 100
+  peer-keepalive destination 100.100.100.100 source 100.100.100.101 vrf vpc
+  delay restore 300
+  peer-gateway
+  layer3 peer-router
+  auto-recovery
+  delay restore interface-vlan 300
+  ip arp synchronize
+
+interface Vlan1
+  no ip redirects
+  no ipv6 redirects
+
+interface Vlan10
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 10.35.10.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan20
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 10.35.20.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan210
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 10.235.10.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan220
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 10.235.20.1/24
+  no ipv6 redirects
+  fabric forwarding mode anycast-gateway
+
+interface Vlan500
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip address 200.0.0.2/29
+  no ipv6 redirects
+
+interface Vlan600
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip address 220.0.0.2/29
+  no ipv6 redirects
+
+interface Vlan1000
+  no shutdown
+  vrf member CUST-1
+  no ip redirects
+  ip forward
+  no ipv6 redirects
+
+interface Vlan2000
+  no shutdown
+  vrf member CUST-2
+  no ip redirects
+  ip forward
+  no ipv6 redirects
+
+interface port-channel10
+  switchport mode trunk
+  vpc 10
+
+interface port-channel100
+  switchport mode trunk
+  spanning-tree port type network
+  vpc peer-link
+
+interface nve1
+  no shutdown
+  host-reachability protocol bgp
+  advertise virtual-rmac
+  source-interface loopback0
+  member vni 10
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 20
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 210
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 220
+    suppress-arp
+    ingress-replication protocol bgp
+  member vni 1000 associate-vrf
+  member vni 2000 associate-vrf
+
+interface Ethernet1/1
+  no switchport
+  ip address 10.34.1.31/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/2
+  no switchport
+  ip address 10.34.2.31/31
+  ip ospf network point-to-point
+  ip router ospf 65000 area 0.0.0.0
+  no shutdown
+
+interface Ethernet1/3
+  switchport access vlan 220
+
+interface Ethernet1/4
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/5
+  no switchport
+  vrf member vpc
+  ip address 100.100.100.101/31
+  no shutdown
+
+interface Ethernet1/6
+  switchport mode trunk
+  channel-group 100 mode active
+
+interface Ethernet1/7
+  switchport mode trunk
+  channel-group 10 mode active
+
+interface loopback0
+  ip address 10.33.30.0/32
+  ip address 10.33.100.0/32 secondary
+  ip router ospf 65000 area 0.0.0.0
+
+router ospf 65000
+router bgp 65000
+  address-family l2vpn evpn
+    advertise-pip
+  template peer SPINES
+    remote-as 65000
+    update-source loopback0
+    address-family l2vpn evpn
+      send-community
+      send-community extended
+  neighbor 10.32.1.0
+    inherit peer SPINES
+  neighbor 10.32.2.0
+    inherit peer SPINES
+  vrf CUST-1
+    neighbor 200.0.0.3
+      remote-as 65100
+      address-family ipv4 unicast
+        send-community
+        send-community extended
+        soft-reconfiguration inbound always
+  vrf CUST-2
+    neighbor 220.0.0.3
+      remote-as 65100
+      address-family ipv4 unicast
+        send-community
+        send-community extended
+        soft-reconfiguration inbound always
 ```
 
 </details>
