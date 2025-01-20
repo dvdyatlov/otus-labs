@@ -1,13 +1,13 @@
-#         EVPN - маршрутизация между VRF через EVPN route-type 5
+#         маршрутизация между VRF через внешнее устройство - демонстрация EVPN route-type 5
 
 ## План работы
 - берем готовую конфигурацию лифов и спайнов из предыдущей лабы по multihoming-у
 - создаем на всех лифах вторую VRF
 - к бордер-лифам (leaf-2n и leaf-3n, которые в VPC) цепляем router-on-the-stick - asr1000v (Border), port-channel к VPC-паре
-- от Border-1 делаем два point-to-point-а - один к бордер-лифам в одну VRF, второй в другую VRF
+- от Border-а делаем два point-to-point-а - один к бордер-лифам в одну VRF, второй в другую VRF
 - создаем на бордер-лифах ipv4 address-family и строим на обоих point-to-point-ах eBGP ipv4 к Border-у
 - на Border-е настраиваем на обоих eBGP-пирах as-override, чтобы Border передавал маршруты от одного пира (vrf CUST-1) другому (vrf CUST-2) с подменой as-path на свою AS, и наоборот
-- медитация
+- рефлексия
 
 <p align="center">
  <img src="lab8-l3vpn-inter-vrf.jpg"/>
@@ -867,7 +867,7 @@ IP Route Table for VRF "CUST-1"
 200.0.0.1/32, ubest/mbest: 1/0, attached
     *via 200.0.0.1, Vlan500, [0/0], 6d19h, local
 ```
-И вот они же на Border-е:
+И вот эти же роуты на Border-е:
 ```
 Border-1#sh ip bgp neighbors 200.0.0.1 routes          
 BGP table version is 23, local router ID is 8.8.8.8
@@ -876,7 +876,7 @@ BGP table version is 23, local router ID is 8.8.8.8
  *>   10.35.20.11/32   200.0.0.1                              0 65000 i
 Total number of prefixes 2 
 ```
-### Вопрос - есть ли какие-то способы управлять этой редистрибуцией из af evpn в af ipv4? Может быть есть ссылки/статейки?
+### Вопрос - есть ли какие-то способы управлять этой редистрибуцией из af evpn в af ipv4? Может быть есть ссылки/статейки про это? я с ходу не нашел
 
 Ну и далее, мы видим, что роуты, которые возникли на leaf-2/3 из других источников (direct, hmm), хотя и попадают в af evpn, но не редистрибутятся в ipv4. Если хочется, надо это делать принудительно.
 Например в случае моей небольшой лабораторной сетки мне не жалко отдать из CUST-1 в CUST-2 и наоборот все хостовые роуты /32, для чего на leaf-2/3 добавляем route-map c-to-bgp, которая разрешает все, и редистрибуцию hmm (на leaf-1 не нужно, они и так заредистрибутятся):
@@ -902,3 +902,5 @@ router bgp 65000
         send-community extended
         soft-reconfiguration inbound always
 ```
+
+ну и да, конечно все машины между собой пингаются
