@@ -843,46 +843,33 @@ leaf-20n# sh ip route vrf C
 CUST-1   CUST-2   
 leaf-20n# sh ip route vrf CUST-1
 IP Route Table for VRF "CUST-1"
+'*' denotes best ucast next-hop
+'**' denotes best mcast next-hop
+'[x/y]' denotes [preference/metric]
+'%<string>' in via output denotes VRF <string>
 
 8.8.8.8/32, ubest/mbest: 1/0
-
     *via 200.0.0.3, [20/0], 3d06h, bgp-65000, external, tag 65100
-    
 10.35.10.0/24, ubest/mbest: 1/0, attached
-
     *via 10.35.10.1, Vlan10, [0/0], 6d19h, direct
-    
 10.35.10.1/32, ubest/mbest: 1/0, attached
-
     *via 10.35.10.1, Vlan10, [0/0], 6d19h, local
-    
-### 10.35.10.11/32, ubest/mbest: 1/0
-###    *via 10.33.10.0%default, [200/0], 3d06h, bgp-65000, internal, tag 65000, segid: 1000 tunnelid: 0xa210a00 encap: VXLAN
+10.35.10.11/32, ubest/mbest: 1/0
+    *via 10.33.10.0%default, [200/0], 3d06h, bgp-65000, internal, tag 65000, segid: 1000 tunnelid: 0xa210a00 encap: VXLAN
  
 10.35.10.21/32, ubest/mbest: 1/0, attached
-
     *via 10.35.10.21, Vlan10, [190/0], 02:27:28, hmm
-    
 10.35.20.0/24, ubest/mbest: 1/0, attached
-
     *via 10.35.20.1, Vlan20, [0/0], 6d19h, direct
-    
 10.35.20.1/32, ubest/mbest: 1/0, attached
-
     *via 10.35.20.1, Vlan20, [0/0], 6d19h, local
-    
-### 10.35.20.11/32, ubest/mbest: 1/0
-###    *via 10.33.10.0%default, [200/0], 3d06h, bgp-65000, internal, tag 65000, segid: 1000 tunnelid: 0xa210a00 encap: VXLAN
+10.35.20.11/32, ubest/mbest: 1/0
+    *via 10.33.10.0%default, [200/0], 3d06h, bgp-65000, internal, tag 65000, segid: 1000 tunnelid: 0xa210a00 encap: VXLAN
  
 10.235.10.10/32, ubest/mbest: 1/0
-
     *via 200.0.0.3, [20/0], 3d06h, bgp-65000, external, tag 65100
-    
 200.0.0.0/29, ubest/mbest: 1/0, attached
-
     *via 200.0.0.1, Vlan500, [0/0], 6d19h, direct
-    
 200.0.0.1/32, ubest/mbest: 1/0, attached
-
     *via 200.0.0.1, Vlan500, [0/0], 6d19h, local
 ```
