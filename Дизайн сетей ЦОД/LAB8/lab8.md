@@ -766,6 +766,70 @@ router bgp 65000
 
 </details>
 
+<details><summary>
+ 
+### конфиг Border
+
+</summary>
+ 
+```
+Border-1#sh run
+hostname Border-1
+
+interface Loopback8
+ ip address 8.8.8.8 255.255.255.255
+!
+interface Port-channel1
+ no ip address
+ no negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface Port-channel1.500
+ encapsulation dot1Q 500
+ ip address 200.0.0.3 255.255.255.248
+!
+interface Port-channel1.600
+ encapsulation dot1Q 600
+ ip address 220.0.0.3 255.255.255.248
+!
+interface GigabitEthernet1
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+ channel-group 1 mode active
+!
+interface GigabitEthernet2
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+ channel-group 1 mode active
+!
+router bgp 65100
+ bgp log-neighbor-changes
+ neighbor 200.0.0.1 remote-as 65000
+ neighbor 200.0.0.2 remote-as 65000
+ neighbor 220.0.0.1 remote-as 65000
+ neighbor 220.0.0.2 remote-as 65000
+ !
+ address-family ipv4
+  network 8.8.8.8 mask 255.255.255.255
+  neighbor 200.0.0.1 activate
+  neighbor 200.0.0.1 as-override
+  neighbor 200.0.0.2 activate
+  neighbor 200.0.0.2 as-override
+  neighbor 220.0.0.1 activate
+  neighbor 220.0.0.1 as-override
+  neighbor 220.0.0.2 activate
+  neighbor 220.0.0.2 as-override
+ exit-address-family
+end
+```
+
+</details>
+
 ## проверяем разное при варианте без агрегации
 ### пинги между PC-3-20 и PC-1-10
 ```
