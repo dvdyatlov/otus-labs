@@ -902,5 +902,15 @@ router bgp 65000
         send-community extended
         soft-reconfiguration inbound always
 ```
+и получаем недостающие роуты машин, висящих на leaf-2/3:
+```
+Border-1#sh ip bgp neighbors 200.0.0.1 routes
+BGP table version is 25, local router ID is 8.8.8.8
+     Network          Next Hop            Metric LocPrf Weight Path
+ *>   10.35.10.11/32   200.0.0.1                              0 65000 i
+ *>   10.35.10.21/32   200.0.0.1                0             0 65000 ? <----------------------------
+ *>   10.35.20.11/32   200.0.0.1                              0 65000 i
+Total number of prefixes 3 
+```
 если хочется сэкономить, можно редистрибутить не hmm, а direct, тогда в другой vrf отдаются только /24-е роуты
 ну и да, конечно все машины между собой пингаются как и хотелось
