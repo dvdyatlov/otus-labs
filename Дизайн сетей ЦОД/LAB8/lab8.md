@@ -20,6 +20,137 @@
 </summary>
  
 ```
+spine-1#sh run
+! Command: show running-config
+! device: spine-1 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine-1
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.34.1.10/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.1.20/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet3
+   no switchport
+   ip address 10.34.1.30/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Loopback1
+   ip address 10.32.1.0/32
+   ip ospf area 0.0.0.0
+!
+interface Management1
+!
+ip routing
+!
+peer-filter LEAVES-ASNs
+   10 match as-range 65010-65030 result accept
+!
+router bgp 65000
+   router-id 10.32.1.0
+   bgp listen range 10.33.0.0/16 peer-group LEAVES remote-as 65000
+   neighbor LEAVES peer group
+   neighbor LEAVES remote-as 65000
+   neighbor LEAVES update-source Loopback1
+   neighbor LEAVES route-reflector-client
+   neighbor LEAVES send-community extended
+   !
+   address-family evpn
+      neighbor LEAVES activate
+!
+router ospf 65000
+   max-lsa 12000
+!
+end
+
+spine-2#sh run
+! Command: show running-config
+! device: spine-2 (vEOS-lab, EOS-4.29.2F)
+!
+! boot system flash:/vEOS-lab.swi
+!
+no aaa root
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname spine-2
+!
+spanning-tree mode mstp
+!
+interface Ethernet1
+   no switchport
+   ip address 10.34.2.10/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet2
+   no switchport
+   ip address 10.34.2.20/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet3
+   no switchport
+   ip address 10.34.2.30/31
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+!
+interface Ethernet4
+!
+interface Ethernet5
+!
+interface Loopback1
+   ip address 10.32.2.0/32
+   ip ospf area 0.0.0.0
+!
+interface Management1
+!
+ip routing
+!
+peer-filter LEAVES-ASNs
+   10 match as-range 65010-65030 result accept
+!
+router bgp 65000
+   router-id 10.32.2.0
+   bgp listen range 10.33.0.0/16 peer-group LEAVES remote-as 65000
+   neighbor LEAVES peer group
+   neighbor LEAVES remote-as 65000
+   neighbor LEAVES update-source Loopback1
+   neighbor LEAVES route-reflector-client
+   neighbor LEAVES send-community extended
+   !
+   address-family evpn
+      neighbor LEAVES activate
+!
+router ospf 65000
+   max-lsa 12000
+!
+end
 ```
 
 </details>
