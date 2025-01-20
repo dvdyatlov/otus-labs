@@ -882,15 +882,23 @@ Total number of prefixes 2
 Например в случае моей небольшой лабораторной сетки мне не жалко отдать из CUST-1 в CUST-2 все хостовые роуты /32, для чего на leaf-2/3 добавляем route-map c-to-bgp, которая разрешает все, и редистрибуцию hmm:
 ```
 router bgp 65000
+...
   vrf CUST-1
     address-family ipv4 unicast
-      redistribute hmm route-map c-to-bgp
+      redistribute hmm route-map c-to-bgp <----------------------------
     neighbor 200.0.0.3
       remote-as 65100
       address-family ipv4 unicast
         send-community
         send-community extended
+        soft-reconfiguration inbound always
   vrf CUST-2
     address-family ipv4 unicast
-      redistribute hmm route-map c-to-bgp
+      redistribute hmm route-map c-to-bgp <----------------------------
+    neighbor 220.0.0.3
+      remote-as 65100
+      address-family ipv4 unicast
+        send-community
+        send-community extended
+        soft-reconfiguration inbound always
 ```
